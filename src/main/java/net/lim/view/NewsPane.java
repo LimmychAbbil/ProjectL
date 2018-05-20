@@ -97,6 +97,7 @@ public class NewsPane extends Pane {
         scrollPane.layoutYProperty().bind(this.layoutYProperty());
         scrollPane.maxHeightProperty().bind(this.heightProperty());
         scrollPane.minHeightProperty().bind(this.heightProperty());
+        scrollPane.setPannable(true);
         scrollPane.setMinWidth(400);
         scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.fitToWidthProperty().setValue(true);

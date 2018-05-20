@@ -2,6 +2,7 @@ package net.lim.view;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import net.lim.controller.LauncherController;
@@ -12,7 +13,7 @@ import net.lim.controller.LauncherController;
 public class LoginPane extends HBox {
     private final LauncherController controller;
     private TextField userNameField;
-    private TextField passwordField;
+    private PasswordField passwordField;
     private Button loginButton;
 
     public LoginPane(LauncherController controller) {
@@ -45,7 +46,7 @@ public class LoginPane extends HBox {
     }
 
     private void initPasswordField() {
-        passwordField = new TextField();
+        passwordField = new PasswordField();
         passwordField.setPromptText("Password");
     }
 
