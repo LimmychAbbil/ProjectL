@@ -11,6 +11,7 @@ import net.lim.LLauncher;
 import net.lim.model.Connection;
 import net.lim.model.StubConnection;
 import net.lim.view.NewsPane;
+import net.lim.view.RegistrationPane;
 
 import java.net.URL;
 
@@ -110,5 +111,27 @@ public class LauncherController {
 
     public void loginButtonPressed(String userName, String password) {
         connection.login(userName, password);
+    }
+
+    public void registrationButtonPressed(RegistrationPane registrationPane) {
+        registrationPane.setVisible(true);
+    }
+
+    public void rulesClicked() {
+        System.out.println("Открыть ссылку на правила");
+    }
+
+    public void sendRegistration(RegistrationPane registrationPane) {
+        //TODO valid data
+        if (!registrationPane.getPassword().getText().equals(registrationPane.getPasswordConfirmation().getText())) {
+            System.out.println("Пароли не совпадают");
+            return;
+        }
+        connection.sendRegistration(registrationPane.getUserName().getText(), registrationPane.getPassword().getText());
+        registrationPane.setVisible(false);
+    }
+
+    public void cancelRegistration(RegistrationPane registrationPane) {
+        registrationPane.setVisible(false);
     }
 }

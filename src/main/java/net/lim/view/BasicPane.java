@@ -17,6 +17,7 @@ public class BasicPane extends Pane {
     private HeaderPane headerPane;
     private NewsPane newsPane;
     private LoginPane loginPane;
+    private RegistrationPane registrationPane;
 
     public BasicPane(LauncherController controller) throws IOException {
         this.controller = controller;
@@ -27,8 +28,16 @@ public class BasicPane extends Pane {
         addBackgroundImage();
         initHeaderPane();
         initNewsPane();
+        initRegistrationPane();
         initLoginPane();
         addContent();
+    }
+
+    private void initRegistrationPane() {
+        registrationPane = new RegistrationPane(controller);
+        registrationPane.setVisible(false);
+        registrationPane.layoutYProperty().bind(this.heightProperty().divide(2.5));
+        registrationPane.layoutXProperty().bind(this.widthProperty().add(registrationPane.widthProperty().multiply(-1)));
     }
 
     private void initNewsPane() {
@@ -46,11 +55,11 @@ public class BasicPane extends Pane {
     }
 
     private void addContent() {
-        getChildren().addAll(headerPane, newsPane, loginPane);
+        getChildren().addAll(headerPane, newsPane, loginPane,registrationPane);
     }
 
     private void initLoginPane() {
-        loginPane = new LoginPane(controller);
+        loginPane = new LoginPane(controller, registrationPane);
 
         loginPane.minWidthProperty().bind(this.widthProperty());
         loginPane.maxWidthProperty().bind(this.widthProperty());

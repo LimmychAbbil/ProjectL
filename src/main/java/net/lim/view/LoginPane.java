@@ -15,9 +15,12 @@ public class LoginPane extends HBox {
     private TextField userNameField;
     private PasswordField passwordField;
     private Button loginButton;
+    private Button registrationButton;
+    private RegistrationPane registrationPane;
 
-    public LoginPane(LauncherController controller) {
+    public LoginPane(LauncherController controller, RegistrationPane registrationPane) {
         this.controller = controller;
+        this.registrationPane = registrationPane;
         init();
     }
 
@@ -25,18 +28,25 @@ public class LoginPane extends HBox {
         initUserNameField();
         initPasswordField();
         initLoginButton();
+        initRegistrationButton();
         addContent();
         setContentMargin();
+    }
+
+    private void initRegistrationButton() {
+        registrationButton = new Button("Регистрация");
+        registrationButton.setOnAction(e -> controller.registrationButtonPressed(registrationPane));
     }
 
     private void setContentMargin() {
         setMargin(userNameField, new Insets(16, 8, 16, 16));
         setMargin(passwordField, new Insets(16, 8, 16, 16));
-        setMargin(loginButton, new Insets(16, 0, 16, 0));
+        setMargin(loginButton, new Insets(16, 8, 16, 0));
+        setMargin(registrationButton, new Insets(16, 0, 16, 8));
     }
 
     private void addContent() {
-        getChildren().addAll(userNameField, passwordField, loginButton);
+        getChildren().addAll(userNameField, passwordField, loginButton, registrationButton);
 
     }
 
