@@ -40,7 +40,9 @@ public class LLauncher extends Application {
     }
 
     private void addIcon(Stage primaryStage) throws FileNotFoundException {
-        Image icon = new Image(new FileInputStream("./ProjectL/src/main/java/icon.ico"));
+        Image icon = new Image(new FileInputStream("./src/main/resources/icon.ico"));
         primaryStage.getIcons().add(icon);
     }
+
+
 }

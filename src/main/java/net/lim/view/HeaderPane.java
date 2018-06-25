@@ -46,7 +46,7 @@ public class HeaderPane extends Pane {
     }
 
     private void initCloseButton() throws IOException {
-        Image exitImage = new Image(new FileInputStream("./ProjectL/src/main/java/exit.png"));
+        Image exitImage = new Image(new FileInputStream("./src/main/resources/exit.png"));
         exitButton = new ImageView(exitImage);
         exitButton.layoutYProperty().setValue(8);
         exitButton.layoutXProperty().bind(this.widthProperty().add(-24));
@@ -54,7 +54,7 @@ public class HeaderPane extends Pane {
     }
 
     private void initMaximizeButton() throws IOException {
-        Image exitImage = new Image(new FileInputStream("./ProjectL/src/main/java/maximize.png"));
+        Image exitImage = new Image(new FileInputStream("./src/main/resources/maximize.png"));
         maximizeButton = new ImageView(exitImage);
         maximizeButton.layoutYProperty().set(8);
         maximizeButton.layoutXProperty().bind(exitButton.layoutXProperty().add(-24));
@@ -63,7 +63,7 @@ public class HeaderPane extends Pane {
     }
 
     private void initMinimizeButton() throws IOException {
-        Image exitImage = new Image(new FileInputStream("./ProjectL/src/main/java/minimize.png"));
+        Image exitImage = new Image(new FileInputStream("./src/main/resources/minimize.png"));
         minimizeButton = new ImageView(exitImage);
         minimizeButton.layoutYProperty().set(8);
         minimizeButton.layoutXProperty().bind(maximizeButton.layoutXProperty().add(-24));

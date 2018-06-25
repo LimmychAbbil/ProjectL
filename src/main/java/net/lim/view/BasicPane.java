@@ -1,6 +1,5 @@
 package net.lim.view;
 
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import net.lim.controller.LauncherController;
@@ -69,8 +68,7 @@ public class BasicPane extends Pane {
     private void addBackgroundImage()  {
         Image backgroundImage = null;
         try {
-            String backgroundImagePath = getBackgroundImagePath();
-            backgroundImage = new Image(new FileInputStream(backgroundImagePath));
+            backgroundImage = new Image(new FileInputStream(getBackgroundImagePath()));
         } catch (FileNotFoundException e) {
             //TODO set default background image
             e.printStackTrace();
@@ -81,6 +79,6 @@ public class BasicPane extends Pane {
 
     private String getBackgroundImagePath() {
         //TODO it is a stub
-        return "./ProjectL/src/main/java/background.jpg";
+        return "./src/main/resources/background.jpg";
     }
 }

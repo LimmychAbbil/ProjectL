@@ -1,6 +1,5 @@
 package net.lim.controller;
 
-import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
@@ -9,8 +8,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
 import net.lim.model.Connection;
-import net.lim.model.StubConnection;
-import net.lim.view.NewsPane;
+import net.lim.model.RestConnection;
 import net.lim.view.RegistrationPane;
 
 import java.net.URL;
@@ -36,8 +34,8 @@ public class LauncherController {
     }
 
     private void establishConnection() {
-        //TODO read configuration file and connect to launch server
-        connection = new StubConnection();
+        //TODO read configuration file (server ip)
+        connection = new RestConnection("http://localhost:8080/rest/login");
     }
 
     public void hideNewsButtonPressed(ScrollPane pane) {
@@ -110,7 +108,13 @@ public class LauncherController {
     }
 
     public void loginButtonPressed(String userName, String password) {
-        connection.login(userName, password);
+        boolean loginResult = connection.login(userName, password);
+        //TODO show login result to user
+        if (loginResult) {
+            //success
+        } else {
+            System.out.println("FAIL");
+        }
     }
 
     public void registrationButtonPressed(RegistrationPane registrationPane) {
