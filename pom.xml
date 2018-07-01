@@ -24,7 +24,7 @@
 
     <groupId>net.lim</groupId>
     <artifactId>LLauncher</artifactId>
-    <version>0.01b</version>
+    <version>0.01c</version>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-client -->

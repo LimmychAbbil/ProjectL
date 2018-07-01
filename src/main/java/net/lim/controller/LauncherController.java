@@ -126,7 +126,7 @@ public class LauncherController {
     }
 
     public void sendRegistration(RegistrationPane registrationPane) {
-        //TODO valid data
+        //TODO valid data (check login regex and password is length enough)
         if (!registrationPane.getPassword().getText().equals(registrationPane.getPasswordConfirmation().getText())) {
             System.out.println("Пароли не совпадают");
             return;

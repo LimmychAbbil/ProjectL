@@ -2,6 +2,8 @@ package net.lim.model;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
 
 public class RestConnection extends Connection {
 
@@ -14,7 +16,10 @@ public class RestConnection extends Connection {
     @Override
     public boolean login(String userName, String password) {
         Client client = ClientBuilder.newClient();
-        javax.ws.rs.core.Response response = client.target(url).queryParam("username", userName).queryParam("pass", password).request().get();
+        Form loginForm = new Form();
+        loginForm.param("userName", userName);
+        loginForm.param("pass", password);
+        javax.ws.rs.core.Response response = client.target(url).request().post(Entity.form(loginForm));
         return response.getStatus() == 200;
     }
 
