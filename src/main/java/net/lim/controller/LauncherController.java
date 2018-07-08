@@ -25,6 +25,7 @@ public class LauncherController {
     private double dragOffsetX;
     private double dragOffsetY;
     private boolean isMaximized = false;
+    private FileController fileController;
 
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
@@ -35,7 +36,7 @@ public class LauncherController {
 
     private void establishConnection() {
         //TODO read configuration file (server ip)
-        connection = new RestConnection("http://localhost:8080/rest/login");
+        connection = new RestConnection("http://localhost:8080/rest");
     }
 
     public void hideNewsButtonPressed(ScrollPane pane) {
@@ -111,10 +112,23 @@ public class LauncherController {
         boolean loginResult = connection.login(userName, password);
         //TODO show login result to user
         if (loginResult) {
-            //success
+            //success, start file checking
+            initFileController(connection);
+            if (fileController.checkFiles()) {
+                System.out.println("Файлы совпадают, стартуем игру");
+            } else {
+                System.out.println("Файлы не совпадают. Удаляем все (кроме игнорируемых) и перепроверяем");
+            }
+            ;
+
         } else {
             System.out.println("FAIL");
+            //show error message
         }
+    }
+
+    private void initFileController(Connection connection) {
+        this.fileController = new FileController(connection);
     }
 
     public void registrationButtonPressed(RegistrationPane registrationPane) {
