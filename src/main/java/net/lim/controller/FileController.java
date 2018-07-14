@@ -1,22 +1,40 @@
 package net.lim.controller;
 
 import net.lim.model.Connection;
-import net.lim.model.FileGetter;
+import net.lim.model.FileManager;
 import org.json.simple.JSONObject;
 
-public class FileController {
-    FileGetter fileGetter;
-    private Connection connection;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-    public FileController(Connection connection) {
+public class FileController {
+    FileManager fileManager;
+    private Connection connection;
+    private String defaultDir;
+    private Path homePath;
+
+    FileController(Connection connection) {
         this.connection = connection;
         JSONObject ftpFileInto = this.connection.getFileServerInfo();
-        fileGetter = new FileGetter(ftpFileInto);
-        fileGetter.parseIgnoredDirs(connection.getIgnoredDirsInfo());
-        fileGetter.setRemoteHashInfo(connection.getFullHashInfo());
+        fileManager = new FileManager(ftpFileInto);
+        fileManager.parseIgnoredDirs(connection.getIgnoredDirsInfo());
+        fileManager.setRemoteHashInfo(connection.getFullHashInfo());
+        defaultDir = FileManager.getDefaultDirectory();
+        homePath = Paths.get(defaultDir);
     }
 
-    public boolean checkFiles() {
-        return fileGetter.checkFiles();
+    boolean checkFiles() {
+        return fileManager.checkFiles();
+    }
+
+    void deleteFiles() {
+       fileManager.deleteFiles(homePath);
+    }
+
+    void downloadFiles() throws Exception {
+        fileManager.downloadFiles();
     }
 }

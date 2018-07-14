@@ -24,7 +24,7 @@
 
     <groupId>net.lim</groupId>
     <artifactId>LLauncher</artifactId>
-    <version>0.01d</version>
+    <version>0.01e</version>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-client -->
@@ -44,6 +44,12 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.11</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.6</version>
         </dependency>
     </dependencies>
 </project>

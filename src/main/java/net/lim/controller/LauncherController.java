@@ -114,12 +114,21 @@ public class LauncherController {
         if (loginResult) {
             //success, start file checking
             initFileController(connection);
-            if (fileController.checkFiles()) {
-                System.out.println("Файлы совпадают, стартуем игру");
-            } else {
-                System.out.println("Файлы не совпадают. Удаляем все (кроме игнорируемых) и перепроверяем");
+            while (true) {
+                if (fileController.checkFiles()) {
+                    System.out.println("Файлы совпадают, стартуем игру");
+                    break;
+                } else {
+                    System.out.println("Файлы не совпадают. Удаляем все (кроме игнорируемых) и перепроверяем");
+                    fileController.deleteFiles();
+                    try {
+                        fileController.downloadFiles();
+                    } catch (Exception e) {
+                        //TODO create error handler
+                        throw new RuntimeException(e);
+                    }
+                }
             }
-            ;
 
         } else {
             System.out.println("FAIL");
