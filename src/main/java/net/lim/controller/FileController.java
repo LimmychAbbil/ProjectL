@@ -2,11 +2,9 @@ package net.lim.controller;
 
 import net.lim.model.Connection;
 import net.lim.model.FileManager;
+import net.lim.view.ProgressView;
 import org.json.simple.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -15,8 +13,9 @@ public class FileController {
     private Connection connection;
     private String defaultDir;
     private Path homePath;
+    private ProgressView progressView;
 
-    FileController(Connection connection) {
+    FileController(Connection connection, ProgressView progressView) {
         this.connection = connection;
         JSONObject ftpFileInto = this.connection.getFileServerInfo();
         fileManager = new FileManager(ftpFileInto);
@@ -24,6 +23,7 @@ public class FileController {
         fileManager.setRemoteHashInfo(connection.getFullHashInfo());
         defaultDir = FileManager.getDefaultDirectory();
         homePath = Paths.get(defaultDir);
+        this.progressView = progressView;
     }
 
     boolean checkFiles() {

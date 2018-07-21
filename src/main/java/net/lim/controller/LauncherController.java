@@ -1,5 +1,6 @@
 package net.lim.controller;
 
+import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
@@ -9,6 +10,7 @@ import javafx.stage.Stage;
 import net.lim.LLauncher;
 import net.lim.model.Connection;
 import net.lim.model.RestConnection;
+import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 
 import java.net.URL;
@@ -26,6 +28,7 @@ public class LauncherController {
     private double dragOffsetY;
     private boolean isMaximized = false;
     private FileController fileController;
+    private ProgressView progressView;
 
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
@@ -109,16 +112,20 @@ public class LauncherController {
     }
 
     public void loginButtonPressed(String userName, String password) {
-        boolean loginResult = connection.login(userName, password);
-        //TODO show login result to user
+        progressView.start();
+        boolean loginResult = login(userName, password);
         if (loginResult) {
             //success, start file checking
             initFileController(connection);
             while (true) {
-                if (fileController.checkFiles()) {
+                progressView.startFilesCheck();
+                boolean fileCheckResult = fileController.checkFiles();
+                progressView.success();
+                if (fileCheckResult) {
                     System.out.println("Файлы совпадают, стартуем игру");
                     break;
                 } else {
+                    progressView.filesCheckFailed();
                     System.out.println("Файлы не совпадают. Удаляем все (кроме игнорируемых) и перепроверяем");
                     fileController.deleteFiles();
                     try {
@@ -130,14 +137,24 @@ public class LauncherController {
                 }
             }
 
-        } else {
-            System.out.println("FAIL");
-            //show error message
+        }
+    }
+
+    private boolean login(String userName, String password) {
+        try {
+            boolean loginSuccess = connection.login(userName, password);
+            if (!loginSuccess) {
+                progressView.loginFailed("Wrong user or password");
+            }
+            return loginSuccess;
+        } catch (Exception e) {
+            progressView.loginFailed(e.getMessage());
+            return false;
         }
     }
 
     private void initFileController(Connection connection) {
-        this.fileController = new FileController(connection);
+        this.fileController = new FileController(connection, progressView);
     }
 
     public void registrationButtonPressed(RegistrationPane registrationPane) {
@@ -160,5 +177,9 @@ public class LauncherController {
 
     public void cancelRegistration(RegistrationPane registrationPane) {
         registrationPane.setVisible(false);
+    }
+
+    public void setProgressView(ProgressView progressView) {
+        this.progressView = progressView;
     }
 }

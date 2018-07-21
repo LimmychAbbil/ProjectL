@@ -2,6 +2,7 @@ package net.lim.view;
 
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
 
 import java.io.FileInputStream;
@@ -17,6 +18,7 @@ public class BasicPane extends Pane {
     private NewsPane newsPane;
     private LoginPane loginPane;
     private RegistrationPane registrationPane;
+    private ProgressView progressView;
 
     public BasicPane(LauncherController controller) throws IOException {
         this.controller = controller;
@@ -29,7 +31,21 @@ public class BasicPane extends Pane {
         initNewsPane();
         initRegistrationPane();
         initLoginPane();
+        initFileCheckView();
         addContent();
+    }
+
+    private void initFileCheckView() {
+        progressView = new ProgressView();
+        progressView.layoutXProperty().bind(this.layoutXProperty());
+        progressView.layoutYProperty().bind(this.layoutYProperty().add(headerPane.heightProperty()));
+        progressView.prefHeightProperty().bind(this.heightProperty().add(headerPane.heightProperty().multiply(-1)).add(loginPane.heightProperty().multiply(-1)));
+        progressView.prefWidthProperty().bind(this.widthProperty());
+        progressView.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
+        progressView.setOpacity(0.9);
+        progressView.setVisible(false);
+
+        controller.setProgressView(progressView);
     }
 
     private void initRegistrationPane() {
@@ -54,7 +70,7 @@ public class BasicPane extends Pane {
     }
 
     private void addContent() {
-        getChildren().addAll(headerPane, newsPane, loginPane,registrationPane);
+        getChildren().addAll(headerPane, newsPane, loginPane,registrationPane, progressView);
     }
 
     private void initLoginPane() {

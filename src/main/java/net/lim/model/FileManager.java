@@ -146,7 +146,7 @@ public class FileManager {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                 Path localFile = Paths.get(defaultDir.toString(), fileName);
                 if (!Files.exists(localFile.getParent())) {
-                    localFile.getParent().toFile().mkdirs();
+                    Files.createDirectories(localFile.getParent());
                 }
                 fileWriter = new FileWriter(localFile.toFile());
                 while (reader.ready()) {
