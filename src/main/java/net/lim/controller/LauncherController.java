@@ -1,8 +1,8 @@
 package net.lim.controller;
 
-import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
@@ -14,6 +14,7 @@ import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Limmy on 28.04.2018.
@@ -112,9 +113,24 @@ public class LauncherController {
     }
 
     public void loginButtonPressed(String userName, String password) {
-        progressView.start();
-        boolean loginResult = login(userName, password);
-        if (loginResult) {
+        progressView.setVisible(true);
+        Task<Boolean> loginTask = createLoginTask(userName, password);
+        progressView.getTextMessageProperty().bind(loginTask.messageProperty());
+        loginTask.setOnSucceeded(e -> {
+            boolean loginSuccess = false;
+
+            loginSuccess = loginTask.getValue();
+            if (loginSuccess) {
+                startFileChecking();
+            } else {
+                startTask(createProgressCompleteTask(5000));
+            }
+
+        });
+        startTask(loginTask);
+        /*
+        if (loginSuccess) {
+            System.out.println("Success");
             //success, start file checking
             initFileController(connection);
             while (true) {
@@ -137,20 +153,103 @@ public class LauncherController {
                 }
             }
 
-        }
+        } else {
+            System.out.println("Fail");
+            try {
+                Thread.sleep(5000);
+                progressView.setVisible(false);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }*/
     }
 
-    private boolean login(String userName, String password) {
-        try {
-            boolean loginSuccess = connection.login(userName, password);
-            if (!loginSuccess) {
-                progressView.loginFailed("Wrong user or password");
+    private void startFileChecking() {
+        initFileController(connection);
+        Task<Boolean> fileCheckTask = createFileCheckTask();
+        progressView.getTextMessageProperty().bind(fileCheckTask.messageProperty());
+        fileCheckTask.setOnSucceeded(e -> {
+            boolean filesOK = fileCheckTask.getValue();
+            if (filesOK) {
+                progressView.getTextMessageProperty().unbind();
+                progressView.getTextMessageProperty().setValue("Launching");
+                startTask(createProgressCompleteTask(1000));
+            } else {
+                Task<Void> downloadFilesTask = createDownloadTask();
+                progressView.getTextMessageProperty().bind(downloadFilesTask.messageProperty());
+                startTask(downloadFilesTask);
+                downloadFilesTask.setOnSucceeded(event -> {
+                    startFileChecking();
+                });
             }
-            return loginSuccess;
-        } catch (Exception e) {
-            progressView.loginFailed(e.getMessage());
-            return false;
-        }
+        });
+        startTask(fileCheckTask);
+    }
+
+    private Task<Void> createDownloadTask() {
+        return new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                updateMessage("Downloading files...");
+                try {
+                    fileController.deleteFiles();
+                    //TODO add progress
+                    fileController.downloadFiles();
+                    System.out.println("Download finished");
+                } finally {
+                    //TODO process finally if something went wrong
+                }
+                return null;
+            }
+        };
+    }
+
+    private Task<Boolean> createFileCheckTask() {
+
+        return new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                updateMessage("Check files");
+                return fileController.checkFiles();
+            }
+        };
+    }
+
+    private void startTask(Task<?> task) {
+        Thread taskThread = new Thread(task);
+        taskThread.setDaemon(false);
+        taskThread.start();
+    }
+
+    private Task<Boolean> createLoginTask(String userName, String password) {
+        return new Task<Boolean>() {
+            @Override
+            protected Boolean call() {
+                updateMessage("Login...");
+                boolean loginSuccess = false;
+                try {
+                    loginSuccess = connection.login(userName, password);
+                    if (!loginSuccess) {
+                        updateMessage("Wrong user or password");
+                    }
+                } catch (Exception e) {
+                    updateMessage("Can't connect: " + e.getMessage());
+                }
+                return loginSuccess;
+            }
+        };
+    }
+
+    private Task<Void> createProgressCompleteTask(long milis) {
+
+        return new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Thread.sleep(milis);
+                progressView.setVisible(false);
+                return null;
+            }
+        };
     }
 
     private void initFileController(Connection connection) {

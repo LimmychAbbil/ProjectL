@@ -70,7 +70,7 @@ public class BasicPane extends Pane {
     }
 
     private void addContent() {
-        getChildren().addAll(headerPane, newsPane, loginPane,registrationPane, progressView);
+        getChildren().addAll(headerPane, newsPane, loginPane, registrationPane, progressView);
     }
 
     private void initLoginPane() {

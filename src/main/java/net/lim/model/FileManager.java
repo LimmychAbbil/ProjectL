@@ -1,6 +1,7 @@
 package net.lim.model;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -134,23 +135,25 @@ public class FileManager {
     public void downloadFiles() throws IOException {
         FTPClient ftpClient = new FTPClient();
         ftpClient.connect(ftpHostURL, (int) ftpPort);
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         boolean loginSuccess = ftpClient.login(ftpUserName, null);
         ftpClient.setControlEncoding("UTF-8");
         if (!loginSuccess) {
             throw new RuntimeException("FTP Server unavailable");
         }
-        FileWriter fileWriter = null;
+        FileOutputStream fileWriter = null;
         for (Object fileNameObject: remoteHashInfo.keySet()) {
             String fileName = (String) fileNameObject;
             try (InputStream stream = ftpClient.retrieveFileStream(new String(fileName.getBytes("UTF-8"), "ISO-8859-1"));
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                    InputStreamReader reader = new InputStreamReader(stream)) {
                 Path localFile = Paths.get(defaultDir.toString(), fileName);
                 if (!Files.exists(localFile.getParent())) {
                     Files.createDirectories(localFile.getParent());
                 }
-                fileWriter = new FileWriter(localFile.toFile());
-                while (reader.ready()) {
-                    fileWriter.write(reader.readLine());
+                fileWriter = new FileOutputStream(localFile.toFile());
+                //TODO add buffer (downloading speed is too low)
+                while (stream.available() > 0) {
+                    fileWriter.write(stream.read());
                 }
                 fileWriter.flush();
             } finally {
@@ -158,7 +161,6 @@ public class FileManager {
                     fileWriter.close();
                 }
             }
-
             ftpClient.completePendingCommand();
 
         }

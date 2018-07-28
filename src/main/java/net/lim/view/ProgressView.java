@@ -1,8 +1,6 @@
 package net.lim.view;
 
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -10,7 +8,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 public class ProgressView extends Pane {
-    private ProgressIndicator progressIndicator;
+    public ProgressIndicator progressIndicator;
     private Text textMessage;
 
     public ProgressView() {
@@ -42,43 +40,7 @@ public class ProgressView extends Pane {
         textMessage.setFill(Color.WHITE);
     }
 
-    public void loginFailed(String message) {
-        Task<Void> showLoginFailedMessage = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                ProgressView.super.setVisible(true);
-                textMessage.textProperty().setValue("Login failed: " + message);
-                Thread.sleep(5000);
-                return null;
-            }
-        };
-
-        showLoginFailedMessage.setOnSucceeded(e -> ProgressView.super.setVisible(false));
-        new Thread(showLoginFailedMessage).start();
-    }
-
-    public void start() {
-        this.setVisible(true);
-    }
-
-    public void success() {
-        Task<Void> sleep = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                textMessage.textProperty().setValue("Success, starting application");
-                Thread.sleep(5000);
-                return null;
-            }
-        };
-        sleep.setOnSucceeded(event -> ProgressView.super.setVisible(false));
-        new Thread(sleep).start();
-    }
-
-    public void startFilesCheck() {
-        textMessage.textProperty().setValue("Checking files...");
-    }
-
-    public void filesCheckFailed() {
-        textMessage.textProperty().setValue("Redownloading files...");
+    public StringProperty getTextMessageProperty() {
+        return textMessage.textProperty();
     }
 }
