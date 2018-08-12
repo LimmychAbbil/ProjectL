@@ -1,5 +1,6 @@
 package net.lim.controller;
 
+import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -9,10 +10,13 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
 import net.lim.model.Connection;
+import net.lim.model.FileManager;
 import net.lim.model.RestConnection;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
@@ -117,9 +121,8 @@ public class LauncherController {
         Task<Boolean> loginTask = createLoginTask(userName, password);
         progressView.getTextMessageProperty().bind(loginTask.messageProperty());
         loginTask.setOnSucceeded(e -> {
-            boolean loginSuccess = false;
+            boolean loginSuccess = loginTask.getValue();
 
-            loginSuccess = loginTask.getValue();
             if (loginSuccess) {
                 startFileChecking();
             } else {
@@ -128,40 +131,6 @@ public class LauncherController {
 
         });
         startTask(loginTask);
-        /*
-        if (loginSuccess) {
-            System.out.println("Success");
-            //success, start file checking
-            initFileController(connection);
-            while (true) {
-                progressView.startFilesCheck();
-                boolean fileCheckResult = fileController.checkFiles();
-                progressView.success();
-                if (fileCheckResult) {
-                    System.out.println("Файлы совпадают, стартуем игру");
-                    break;
-                } else {
-                    progressView.filesCheckFailed();
-                    System.out.println("Файлы не совпадают. Удаляем все (кроме игнорируемых) и перепроверяем");
-                    fileController.deleteFiles();
-                    try {
-                        fileController.downloadFiles();
-                    } catch (Exception e) {
-                        //TODO create error handler
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-        } else {
-            System.out.println("Fail");
-            try {
-                Thread.sleep(5000);
-                progressView.setVisible(false);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }*/
     }
 
     private void startFileChecking() {
@@ -174,6 +143,11 @@ public class LauncherController {
                 progressView.getTextMessageProperty().unbind();
                 progressView.getTextMessageProperty().setValue("Launching");
                 startTask(createProgressCompleteTask(1000));
+                try {
+                    launchGame();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             } else {
                 Task<Void> downloadFilesTask = createDownloadTask();
                 progressView.getTextMessageProperty().bind(downloadFilesTask.messageProperty());
@@ -186,6 +160,17 @@ public class LauncherController {
         startTask(fileCheckTask);
     }
 
+    private void launchGame() throws Exception {
+        //TODO customize command
+        Process launch = Runtime.getRuntime().exec("cmd.exe /c C: && cd " + FileManager.DEFAULT_DIRECTORY+ "&& " +
+                "javaw -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xmx1G -XX:+UseConcMarkSweepGC -XX:-UseAdaptiveSizePolicy -Xmn128M -Djava.library.path=.minecraft\\versions\\1.8.7\\1.8.7-natives-270480024547 -cp .minecraft\\libraries\\oshi-project\\oshi-core\\1.1\\oshi-core-1.1.jar;.minecraft\\libraries\\net\\java\\dev\\jna\\jna\\3.4.0\\jna-3.4.0.jar;.minecraft\\libraries\\net\\java\\dev\\jna\\platform\\3.4.0\\platform-3.4.0.jar;.minecraft\\libraries\\com\\ibm\\icu\\icu4j-core-mojang\\51.2\\icu4j-core-mojang-51.2.jar;.minecraft\\libraries\\net\\sf\\jopt-simple\\jopt-simple\\4.6\\jopt-simple-4.6.jar;.minecraft\\libraries\\com\\paulscode\\codecjorbis\\20101023\\codecjorbis-20101023.jar;.minecraft\\libraries\\com\\paulscode\\codecwav\\20101023\\codecwav-20101023.jar;.minecraft\\libraries\\com\\paulscode\\libraryjavasound\\20101123\\libraryjavasound-20101123.jar;.minecraft\\libraries\\com\\paulscode\\librarylwjglopenal\\20100824\\librarylwjglopenal-20100824.jar;.minecraft\\libraries\\com\\paulscode\\soundsystem\\20120107\\soundsystem-20120107.jar;.minecraft\\libraries\\io\\netty\\netty-all\\4.0.23.Final\\netty-all-4.0.23.Final.jar;.minecraft\\libraries\\com\\google\\guava\\guava\\17.0\\guava-17.0.jar;.minecraft\\libraries\\org\\apache\\commons\\commons-lang3\\3.3.2\\commons-lang3-3.3.2.jar;.minecraft\\libraries\\commons-io\\commons-io\\2.4\\commons-io-2.4.jar;.minecraft\\libraries\\commons-codec\\commons-codec\\1.9\\commons-codec-1.9.jar;.minecraft\\libraries\\net\\java\\jinput\\jinput\\2.0.5\\jinput-2.0.5.jar;.minecraft\\libraries\\net\\java\\jutils\\jutils\\1.0.0\\jutils-1.0.0.jar;.minecraft\\libraries\\com\\google\\code\\gson\\gson\\2.2.4\\gson-2.2.4.jar;.minecraft\\libraries\\com\\mojang\\authlib\\1.5.21\\authlib-1.5.21.jar;.minecraft\\libraries\\com\\mojang\\realms\\1.7.23\\realms-1.7.23.jar;.minecraft\\libraries\\org\\apache\\commons\\commons-compress\\1.8.1\\commons-compress-1.8.1.jar;.minecraft\\libraries\\org\\apache\\httpcomponents\\httpclient\\4.3.3\\httpclient-4.3.3.jar;.minecraft\\libraries\\commons-logging\\commons-logging\\1.1.3\\commons-logging-1.1.3.jar;.minecraft\\libraries\\org\\apache\\httpcomponents\\httpcore\\4.3.2\\httpcore-4.3.2.jar;.minecraft\\libraries\\org\\apache\\logging\\log4j\\log4j-api\\2.0-beta9\\log4j-api-2.0-beta9.jar;.minecraft\\libraries\\org\\apache\\logging\\log4j\\log4j-core\\2.0-beta9\\log4j-core-2.0-beta9.jar;.minecraft\\libraries\\org\\lwjgl\\lwjgl\\lwjgl\\2.9.4-nightly-20150209\\lwjgl-2.9.4-nightly-20150209.jar;.minecraft\\libraries\\org\\lwjgl\\lwjgl\\lwjgl_util\\2.9.4-nightly-20150209\\lwjgl_util-2.9.4-nightly-20150209.jar;.minecraft\\libraries\\tv\\twitch\\twitch\\6.5\\twitch-6.5.jar;.minecraft\\versions\\1.8.7\\1.8.7.jar net.minecraft.client.main.Main --username %nickName% --version 1.8.7 --gameDir .minecraft --assetsDir .minecraft\\assets --assetIndex 1.8 --uuid e90ca68a26004b80a737ace4cd74797d --accessToken 7658368cabe94fa2b7439e1b24b59910 --userProperties {} --userType mojang --server myserverURL");
+
+
+        if (launch.isAlive() || launch.exitValue() == 0) {
+            Platform.exit();
+        }
+    }
+
     private Task<Void> createDownloadTask() {
         return new Task<Void>() {
             @Override
@@ -193,11 +178,19 @@ public class LauncherController {
                 updateMessage("Downloading files...");
                 try {
                     fileController.deleteFiles();
-                    //TODO add progress
-                    fileController.downloadFiles();
+                    fileController.initFTPConnection();
+                    for (String fileName: fileController.getFileNames()) {
+                        fileController.downloadFile(fileName);
+//                        updateProgress(fileController.getFileManager().getProgressCounter(), fileController.getFileManager().getTotalFilesSize());
+                        updateMessage("Downloading files: " + fileController.getFileManager().getProgressCounter() +
+                                " / " + fileController.getFileManager().getTotalFilesSize());
+                    }
                     System.out.println("Download finished");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 } finally {
                     //TODO process finally if something went wrong
+                    fileController.getFileManager().closeFTPConnection();
                 }
                 return null;
             }

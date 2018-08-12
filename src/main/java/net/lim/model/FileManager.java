@@ -12,16 +12,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 //TODO folders are not released.
 public class FileManager {
-    private static final String DEFAULT_DIRECTORY = System.getProperty("user.home") + File.separator + ".LServer/";
+    public static final String DEFAULT_DIRECTORY = System.getProperty("user.home") + File.separator + ".LServer" + File.separator;
     private final long ftpPort;
     private String ftpHostURL;
     private String ftpUserName;
     private List<String> ignoredDirs;
     private Path defaultDir;
     private JSONObject remoteHashInfo;
+    private int progressCounter;
+    private FTPClient ftpClient;
 
     public FileManager(JSONObject serverInfo) {
         this.ftpHostURL = (String) serverInfo.get("host");
@@ -51,6 +54,7 @@ public class FileManager {
             Object localFileHash = localHashInfo.get(localFileNameObject);
             Object remoteFileHah = remoteHashInfo.get(localFileNameObject);
             if (!localFileHash.equals(remoteFileHah)) {
+                System.out.println(localFileNameObject + " differ");
                 return false;
             }
         }
@@ -132,38 +136,57 @@ public class FileManager {
         return ignoredDirs.contains(defaultDir.relativize(currentDir).toString());
     }
 
-    public void downloadFiles() throws IOException {
-        FTPClient ftpClient = new FTPClient();
+    public void initFTPConnection() throws IOException {
+        ftpClient = new FTPClient();
         ftpClient.connect(ftpHostURL, (int) ftpPort);
-        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         boolean loginSuccess = ftpClient.login(ftpUserName, null);
         ftpClient.setControlEncoding("UTF-8");
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         if (!loginSuccess) {
             throw new RuntimeException("FTP Server unavailable");
         }
-        FileOutputStream fileWriter = null;
-        for (Object fileNameObject: remoteHashInfo.keySet()) {
-            String fileName = (String) fileNameObject;
-            try (InputStream stream = ftpClient.retrieveFileStream(new String(fileName.getBytes("UTF-8"), "ISO-8859-1"));
-                    InputStreamReader reader = new InputStreamReader(stream)) {
-                Path localFile = Paths.get(defaultDir.toString(), fileName);
-                if (!Files.exists(localFile.getParent())) {
-                    Files.createDirectories(localFile.getParent());
-                }
-                fileWriter = new FileOutputStream(localFile.toFile());
-                //TODO add buffer (downloading speed is too low)
-                while (stream.available() > 0) {
-                    fileWriter.write(stream.read());
-                }
-                fileWriter.flush();
-            } finally {
-                if (fileWriter != null) {
-                    fileWriter.close();
-                }
-            }
-            ftpClient.completePendingCommand();
+    }
 
+    public void downloadFile(String fileName) throws IOException {
+        FileOutputStream fileWriter = null;
+        progressCounter++;
+        byte[] buffer = new byte[1024];
+        try (InputStream stream = ftpClient.retrieveFileStream(new String(fileName.getBytes("UTF-8"), "ISO-8859-1"))) {
+            Path localFile = Paths.get(defaultDir.toString(), fileName);
+            if (!Files.exists(localFile.getParent())) {
+                Files.createDirectories(localFile.getParent());
+            }
+            fileWriter = new FileOutputStream(localFile.toFile());
+            //TODO add buffer (downloading speed is too low)
+            int read = 0;
+            while ((read = stream.read(buffer, 0, buffer.length)) != -1) {
+                fileWriter.write(buffer, 0, read);
+            }
+            fileWriter.flush();
+        } finally {
+            if (fileWriter != null) {
+                fileWriter.close();
+            }
         }
-        ftpClient.quit();
+        ftpClient.completePendingCommand();
+
+    }
+
+    public void closeFTPConnection() throws IOException {
+        if (ftpClient != null) {
+            ftpClient.quit();
+        }
+    }
+
+    public int getProgressCounter() {
+        return progressCounter;
+    }
+
+    public int getTotalFilesSize() {
+        return getFileNames().size();
+    }
+
+    public Collection<String> getFileNames() {
+        return remoteHashInfo.keySet();
     }
 }

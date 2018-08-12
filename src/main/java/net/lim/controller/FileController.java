@@ -5,8 +5,10 @@ import net.lim.model.FileManager;
 import net.lim.view.ProgressView;
 import org.json.simple.JSONObject;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 public class FileController {
     FileManager fileManager;
@@ -34,7 +36,19 @@ public class FileController {
        fileManager.deleteFiles(homePath);
     }
 
-    void downloadFiles() throws Exception {
-        fileManager.downloadFiles();
+    void initFTPConnection() throws IOException {
+        fileManager.initFTPConnection();
+    }
+    Collection<String> getFileNames() throws Exception {
+        return fileManager.getFileNames();
+    }
+
+
+    void downloadFile(String fileName) throws Exception {
+        fileManager.downloadFile(fileName);
+    }
+
+    public FileManager getFileManager() {
+        return fileManager;
     }
 }
