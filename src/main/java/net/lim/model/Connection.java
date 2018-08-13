@@ -8,7 +8,7 @@ import org.json.simple.JSONObject;
  */
 public abstract class Connection {
     public abstract boolean login(String userName, String password);
-    public abstract void sendRegistration(String userName, String password);
+    public abstract boolean sendRegistration(String userName, String password);
     public abstract JSONObject getFileServerInfo();
     public abstract JSONArray getIgnoredDirsInfo();
     public abstract JSONObject getFullHashInfo();

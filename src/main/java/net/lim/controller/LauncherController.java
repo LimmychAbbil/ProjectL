@@ -263,8 +263,14 @@ public class LauncherController {
             System.out.println("Пароли не совпадают");
             return;
         }
-        connection.sendRegistration(registrationPane.getUserName().getText(), registrationPane.getPassword().getText());
-        registrationPane.setVisible(false);
+        boolean registrationOK = connection.sendRegistration(registrationPane.getUserName().getText(), registrationPane.getPassword().getText());
+        if (registrationOK) {
+            registrationPane.setVisible(false);
+        } else {
+            //TODO show error message
+            System.out.println("Registration failed");
+        }
+
     }
 
     public void cancelRegistration(RegistrationPane registrationPane) {

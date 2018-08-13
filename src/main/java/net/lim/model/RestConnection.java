@@ -32,7 +32,16 @@ public class RestConnection extends Connection {
     }
 
     @Override
-    public void sendRegistration(String userName, String password) {
+    public boolean sendRegistration(String userName, String password) {
+        Client client = ClientBuilder.newClient();
+        Form registrationForm = new Form();
+        registrationForm.param("userName", userName);
+        registrationForm.param("pass", password);
+        Response response = client.target(url + "/register").request().post(Entity.form(registrationForm));
+
+        client.close();
+
+        return response.getStatus() == 200;
 
     }
 
