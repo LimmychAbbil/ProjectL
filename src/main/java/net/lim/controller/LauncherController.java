@@ -1,6 +1,5 @@
 package net.lim.controller;
 
-import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -15,10 +14,7 @@ import net.lim.model.RestConnection;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Limmy on 28.04.2018.
@@ -39,12 +35,27 @@ public class LauncherController {
         this.hostServices = hostServices;
         this.primaryStage = primaryStage;
         initializeDefaultXAndY(primaryStage);
-        establishConnection();
+        try {
+            //TODO make connection attempt async
+            establishConnection();
+        } catch (RuntimeException e) {
+            //TODO show temporary error popup
+            System.err.println("Can't establish connection: " + e.getMessage());
+        }
     }
 
     private void establishConnection() {
         //TODO read configuration file (server ip)
         connection = new RestConnection("http://localhost:8080/rest");
+        boolean connectionOK = connection.validateConnection();
+        if (connectionOK) {
+            boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
+            if (!currentVersionSupported) {
+                throw new RuntimeException("Too old launcher version. Please upgrade");
+            }
+        } else {
+            throw new RuntimeException("Can't establish connection");
+        }
     }
 
     public void hideNewsButtonPressed(ScrollPane pane) {

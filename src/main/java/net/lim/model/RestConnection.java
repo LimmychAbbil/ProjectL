@@ -1,5 +1,6 @@
 package net.lim.model;
 
+import net.lim.LLauncher;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -80,5 +81,21 @@ public class RestConnection extends Connection {
             e.printStackTrace();
         }
         return jsonObject;
+    }
+
+    @Override
+    public boolean validateConnection() {
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(url).request().get();
+        return response.getStatus() == Response.Status.OK.getStatusCode();
+    }
+
+    @Override
+    public boolean validateVersionSupported(String currentVersion) {
+        Client client = ClientBuilder.newClient();
+        Form versionForm = new Form();
+        versionForm.param("version", currentVersion);
+        Response response = client.target(url + "/versionCheck").request().post(Entity.form(versionForm));
+        return response.getStatus() == Response.Status.OK.getStatusCode();
     }
 }
