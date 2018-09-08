@@ -11,9 +11,13 @@ import net.lim.LLauncher;
 import net.lim.model.Connection;
 import net.lim.model.FileManager;
 import net.lim.model.RestConnection;
+import net.lim.model.service.LUtils;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URL;
 
 /**
@@ -269,17 +273,33 @@ public class LauncherController {
     }
 
     public void sendRegistration(RegistrationPane registrationPane) {
-        //TODO valid data (check login regex and password is length enough)
-        if (!registrationPane.getPassword().getText().equals(registrationPane.getPasswordConfirmation().getText())) {
-            System.out.println("Пароли не совпадают");
+        if (!LUtils.isNotValidUserName(registrationPane.getUserName().getText())) {
+            registrationPane.getErrorMessage().setText("Неправильное имя пользователя");
             return;
         }
-        boolean registrationOK = connection.sendRegistration(registrationPane.getUserName().getText(), registrationPane.getPassword().getText());
-        if (registrationOK) {
-            registrationPane.setVisible(false);
-        } else {
-            //TODO show error message
-            System.out.println("Registration failed");
+        if (registrationPane.getPassword().getText().isEmpty()) {
+            registrationPane.getErrorMessage().setText("Пустой пароль");
+            return;
+        }
+        if (!registrationPane.getPassword().getText().equals(registrationPane.getPasswordConfirmation().getText())) {
+            registrationPane.getErrorMessage().setText("Пароли не совпадают");
+            return;
+        }
+
+        if (!registrationPane.getRulesConfirmation().isSelected()) {
+            registrationPane.getErrorMessage().setText("Подтвердите согласие с правилами");
+            return;
+        }
+        try {
+            int responseCode = connection.sendRegistration(registrationPane.getUserName().getText(), registrationPane.getPassword().getText());
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                registrationPane.getErrorMessage().setText("");
+                registrationPane.setVisible(false);
+            } else {
+                registrationPane.getErrorMessage().setText(Connection.getErrorMessage(responseCode));
+            }
+        } catch (Exception e) {
+            registrationPane.getErrorMessage().setText("Не удалось зарегистрироваться: " + e.getMessage());
         }
 
     }

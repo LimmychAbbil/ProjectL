@@ -6,6 +6,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import net.lim.controller.LauncherController;
 
 /**
@@ -18,6 +19,7 @@ public class RegistrationPane extends GridPane {
     private PasswordField passwordConfirmation;
     private Hyperlink rules;
     private CheckBox rulesConfirmation;
+    private Label errorMessage;
     private Button sendButton;
     private Button cancelButton;
     public RegistrationPane(LauncherController controller) {
@@ -51,7 +53,12 @@ public class RegistrationPane extends GridPane {
         rules = new Hyperlink("Я прочитал правила");
         rules.setOnMouseClicked(e -> controller.rulesClicked());
         rulesConfirmation = new CheckBox();
-        rulesConfirmation.setAccessibleText("СОСАТБ");
+        rulesConfirmation.setAccessibleText("Ссылка на правила");
+
+        errorMessage = new Label();
+        errorMessage.setStyle("-fx-text-fill: red; -fx-font-size: 12");
+
+
         sendButton = new Button("Зарегистрироваться");
         sendButton.setOnMouseClicked(e -> controller.sendRegistration(this));
 
@@ -60,6 +67,7 @@ public class RegistrationPane extends GridPane {
     }
 
     private void addContent() {
+        //0-2 rows content shouldn't have default width
         this.addRow(0);
         this.add(userName, 0, 0, 2, 1);
         this.addRow(1);
@@ -68,7 +76,8 @@ public class RegistrationPane extends GridPane {
         this.add(passwordConfirmation, 0, 2, 2, 1);
         this.addRow(3, rules, rulesConfirmation);
         this.addRow(4);
-        this.addRow(4, sendButton, cancelButton);
+        this.add(errorMessage, 0, 4, 2, 1);
+        this.addRow(5, sendButton, cancelButton);
     }
 
     public LauncherController getController() {
@@ -97,5 +106,9 @@ public class RegistrationPane extends GridPane {
 
     public Button getSendButton() {
         return sendButton;
+    }
+
+    public Label getErrorMessage() {
+        return errorMessage;
     }
 }

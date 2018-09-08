@@ -11,6 +11,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
+import java.net.ConnectException;
 
 public class RestConnection extends Connection {
 
@@ -33,7 +34,7 @@ public class RestConnection extends Connection {
     }
 
     @Override
-    public boolean sendRegistration(String userName, String password) {
+    public int sendRegistration(String userName, String password)  {
         Client client = ClientBuilder.newClient();
         Form registrationForm = new Form();
         registrationForm.param("userName", userName);
@@ -42,7 +43,7 @@ public class RestConnection extends Connection {
 
         client.close();
 
-        return response.getStatus() == 200;
+        return response.getStatus();
 
     }
 
