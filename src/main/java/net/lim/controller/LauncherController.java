@@ -16,8 +16,6 @@ import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.IOException;
-import java.net.ConnectException;
 import java.net.URL;
 
 /**
@@ -139,7 +137,7 @@ public class LauncherController {
             boolean loginSuccess = loginTask.getValue();
 
             if (loginSuccess) {
-                startFileChecking();
+                startFileChecking(userName);
             } else {
                 startTask(createProgressCompleteTask(5000));
             }
@@ -148,7 +146,7 @@ public class LauncherController {
         startTask(loginTask);
     }
 
-    private void startFileChecking() {
+    private void startFileChecking(String userName) {
         initFileController(connection);
         Task<Boolean> fileCheckTask = createFileCheckTask();
         progressView.getTextMessageProperty().bind(fileCheckTask.messageProperty());
@@ -159,7 +157,7 @@ public class LauncherController {
                 progressView.getTextMessageProperty().setValue("Launching");
                 startTask(createProgressCompleteTask(1000));
                 try {
-                    launchGame();
+                    launchGame(getServerURL(), userName);
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -168,17 +166,42 @@ public class LauncherController {
                 progressView.getTextMessageProperty().bind(downloadFilesTask.messageProperty());
                 startTask(downloadFilesTask);
                 downloadFilesTask.setOnSucceeded(event -> {
-                    startFileChecking();
+                    startFileChecking(userName);
                 });
             }
         });
         startTask(fileCheckTask);
     }
 
-    private void launchGame() throws Exception {
-        //TODO customize command
-        Process launch = Runtime.getRuntime().exec("cmd.exe /c C: && cd " + FileManager.DEFAULT_DIRECTORY+ "&& " +
-                "javaw -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xmx1G -XX:+UseConcMarkSweepGC -XX:-UseAdaptiveSizePolicy -Xmn128M -Djava.library.path=.minecraft\\versions\\1.8.7\\1.8.7-natives-270480024547 -cp .minecraft\\libraries\\oshi-project\\oshi-core\\1.1\\oshi-core-1.1.jar;.minecraft\\libraries\\net\\java\\dev\\jna\\jna\\3.4.0\\jna-3.4.0.jar;.minecraft\\libraries\\net\\java\\dev\\jna\\platform\\3.4.0\\platform-3.4.0.jar;.minecraft\\libraries\\com\\ibm\\icu\\icu4j-core-mojang\\51.2\\icu4j-core-mojang-51.2.jar;.minecraft\\libraries\\net\\sf\\jopt-simple\\jopt-simple\\4.6\\jopt-simple-4.6.jar;.minecraft\\libraries\\com\\paulscode\\codecjorbis\\20101023\\codecjorbis-20101023.jar;.minecraft\\libraries\\com\\paulscode\\codecwav\\20101023\\codecwav-20101023.jar;.minecraft\\libraries\\com\\paulscode\\libraryjavasound\\20101123\\libraryjavasound-20101123.jar;.minecraft\\libraries\\com\\paulscode\\librarylwjglopenal\\20100824\\librarylwjglopenal-20100824.jar;.minecraft\\libraries\\com\\paulscode\\soundsystem\\20120107\\soundsystem-20120107.jar;.minecraft\\libraries\\io\\netty\\netty-all\\4.0.23.Final\\netty-all-4.0.23.Final.jar;.minecraft\\libraries\\com\\google\\guava\\guava\\17.0\\guava-17.0.jar;.minecraft\\libraries\\org\\apache\\commons\\commons-lang3\\3.3.2\\commons-lang3-3.3.2.jar;.minecraft\\libraries\\commons-io\\commons-io\\2.4\\commons-io-2.4.jar;.minecraft\\libraries\\commons-codec\\commons-codec\\1.9\\commons-codec-1.9.jar;.minecraft\\libraries\\net\\java\\jinput\\jinput\\2.0.5\\jinput-2.0.5.jar;.minecraft\\libraries\\net\\java\\jutils\\jutils\\1.0.0\\jutils-1.0.0.jar;.minecraft\\libraries\\com\\google\\code\\gson\\gson\\2.2.4\\gson-2.2.4.jar;.minecraft\\libraries\\com\\mojang\\authlib\\1.5.21\\authlib-1.5.21.jar;.minecraft\\libraries\\com\\mojang\\realms\\1.7.23\\realms-1.7.23.jar;.minecraft\\libraries\\org\\apache\\commons\\commons-compress\\1.8.1\\commons-compress-1.8.1.jar;.minecraft\\libraries\\org\\apache\\httpcomponents\\httpclient\\4.3.3\\httpclient-4.3.3.jar;.minecraft\\libraries\\commons-logging\\commons-logging\\1.1.3\\commons-logging-1.1.3.jar;.minecraft\\libraries\\org\\apache\\httpcomponents\\httpcore\\4.3.2\\httpcore-4.3.2.jar;.minecraft\\libraries\\org\\apache\\logging\\log4j\\log4j-api\\2.0-beta9\\log4j-api-2.0-beta9.jar;.minecraft\\libraries\\org\\apache\\logging\\log4j\\log4j-core\\2.0-beta9\\log4j-core-2.0-beta9.jar;.minecraft\\libraries\\org\\lwjgl\\lwjgl\\lwjgl\\2.9.4-nightly-20150209\\lwjgl-2.9.4-nightly-20150209.jar;.minecraft\\libraries\\org\\lwjgl\\lwjgl\\lwjgl_util\\2.9.4-nightly-20150209\\lwjgl_util-2.9.4-nightly-20150209.jar;.minecraft\\libraries\\tv\\twitch\\twitch\\6.5\\twitch-6.5.jar;.minecraft\\versions\\1.8.7\\1.8.7.jar net.minecraft.client.main.Main --username %nickName% --version 1.8.7 --gameDir .minecraft --assetsDir .minecraft\\assets --assetIndex 1.8 --uuid e90ca68a26004b80a737ace4cd74797d --accessToken 7658368cabe94fa2b7439e1b24b59910 --userProperties {} --userType mojang --server myserverURL");
+    private String getServerURL() {
+        //TODO its a stub
+        return "myServerURL";
+    }
+
+    private void launchGame(String serverURL, String login) throws Exception {
+        final String useCMDCommand = "cmd.exe /c ";
+        String goToDiskCCommand = "C:";
+        String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY ;
+        String fulllaunchCommand = new StringBuilder(useCMDCommand).append(goToDiskCCommand).append(" && ").append(goToDefaultDirCommand).append(" && ")
+                .append("javaw ")
+                .append("-Xmx1G ")
+                .append("-XX:+UseConcMarkSweepGC ")
+                .append("-XX:-UseAdaptiveSizePolicy ")
+                .append("-Xmn128M ")
+                .append("-Djava.library.path=.minecraft\\versions\\1.8.7\\1.8.7-natives-270480024547 ")
+                .append("-cp .minecraft\\libraries\\oshi-project\\oshi-core\\1.1\\oshi-core-1.1.jar;.minecraft\\libraries\\net\\java\\dev\\jna\\jna\\3.4.0\\jna-3.4.0.jar;.minecraft\\libraries\\net\\java\\dev\\jna\\platform\\3.4.0\\platform-3.4.0.jar;.minecraft\\libraries\\com\\ibm\\icu\\icu4j-core-mojang\\51.2\\icu4j-core-mojang-51.2.jar;.minecraft\\libraries\\net\\sf\\jopt-simple\\jopt-simple\\4.6\\jopt-simple-4.6.jar;.minecraft\\libraries\\com\\paulscode\\codecjorbis\\20101023\\codecjorbis-20101023.jar;.minecraft\\libraries\\com\\paulscode\\codecwav\\20101023\\codecwav-20101023.jar;.minecraft\\libraries\\com\\paulscode\\libraryjavasound\\20101123\\libraryjavasound-20101123.jar;.minecraft\\libraries\\com\\paulscode\\librarylwjglopenal\\20100824\\librarylwjglopenal-20100824.jar;.minecraft\\libraries\\com\\paulscode\\soundsystem\\20120107\\soundsystem-20120107.jar;.minecraft\\libraries\\io\\netty\\netty-all\\4.0.23.Final\\netty-all-4.0.23.Final.jar;.minecraft\\libraries\\com\\google\\guava\\guava\\17.0\\guava-17.0.jar;.minecraft\\libraries\\org\\apache\\commons\\commons-lang3\\3.3.2\\commons-lang3-3.3.2.jar;.minecraft\\libraries\\commons-io\\commons-io\\2.4\\commons-io-2.4.jar;.minecraft\\libraries\\commons-codec\\commons-codec\\1.9\\commons-codec-1.9.jar;.minecraft\\libraries\\net\\java\\jinput\\jinput\\2.0.5\\jinput-2.0.5.jar;.minecraft\\libraries\\net\\java\\jutils\\jutils\\1.0.0\\jutils-1.0.0.jar;.minecraft\\libraries\\com\\google\\code\\gson\\gson\\2.2.4\\gson-2.2.4.jar;.minecraft\\libraries\\com\\mojang\\authlib\\1.5.21\\authlib-1.5.21.jar;.minecraft\\libraries\\com\\mojang\\realms\\1.7.23\\realms-1.7.23.jar;.minecraft\\libraries\\org\\apache\\commons\\commons-compress\\1.8.1\\commons-compress-1.8.1.jar;.minecraft\\libraries\\org\\apache\\httpcomponents\\httpclient\\4.3.3\\httpclient-4.3.3.jar;.minecraft\\libraries\\commons-logging\\commons-logging\\1.1.3\\commons-logging-1.1.3.jar;.minecraft\\libraries\\org\\apache\\httpcomponents\\httpcore\\4.3.2\\httpcore-4.3.2.jar;.minecraft\\libraries\\org\\apache\\logging\\log4j\\log4j-api\\2.0-beta9\\log4j-api-2.0-beta9.jar;.minecraft\\libraries\\org\\apache\\logging\\log4j\\log4j-core\\2.0-beta9\\log4j-core-2.0-beta9.jar;.minecraft\\libraries\\org\\lwjgl\\lwjgl\\lwjgl\\2.9.4-nightly-20150209\\lwjgl-2.9.4-nightly-20150209.jar;.minecraft\\libraries\\org\\lwjgl\\lwjgl\\lwjgl_util\\2.9.4-nightly-20150209\\lwjgl_util-2.9.4-nightly-20150209.jar;.minecraft\\libraries\\tv\\twitch\\twitch\\6.5\\twitch-6.5.jar;.minecraft\\versions\\1.8.7\\1.8.7.jar ")
+                .append("net.minecraft.client.main.Main ")
+                .append("--username ").append(login).append(" ")
+                .append("--version 1.8.7 ")
+                .append("--gameDir .minecraft ")
+                .append("--assetsDir .minecraft\\assets ")
+                .append("--assetIndex 1.8 ")
+                .append("--uuid e90ca68a26004b80a737ace4cd74797d ")
+                .append("--accessToken 7658368cabe94fa2b7439e1b24b59910 ")
+                .append("--userProperties {} ")
+                .append("--userType mojang ")
+                .append("--server ").append(serverURL).toString();
+        Process launch = Runtime.getRuntime().exec(fulllaunchCommand);
 
 
         if (launch.isAlive() || launch.exitValue() == 0) {
@@ -225,7 +248,7 @@ public class LauncherController {
 
     private void startTask(Task<?> task) {
         Thread taskThread = new Thread(task);
-        taskThread.setDaemon(false);
+        taskThread.setDaemon(true);
         taskThread.start();
     }
 
