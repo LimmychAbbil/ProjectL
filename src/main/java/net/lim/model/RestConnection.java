@@ -12,6 +12,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import java.net.ConnectException;
+import java.util.List;
 
 public class RestConnection extends Connection {
 
@@ -24,53 +25,126 @@ public class RestConnection extends Connection {
     //TODO should we create a new client for every call?
     @Override
     public boolean login(String userName, String password) {
-        Client client = ClientBuilder.newClient();
-        Form loginForm = new Form();
-        loginForm.param("userName", userName);
-        loginForm.param("pass", password);
-        Response response = client.target(url + "/login").request().post(Entity.form(loginForm));
-        client.close();
-        return response.getStatus() == 200;
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Form loginForm = new Form();
+            loginForm.param("userName", userName);
+            loginForm.param("pass", password);
+            Response response = client.target(url + "/login").request().post(Entity.form(loginForm));
+            return response.getStatus() == 200;
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
     }
 
     @Override
-    public int sendRegistration(String userName, String password)  {
-        Client client = ClientBuilder.newClient();
-        Form registrationForm = new Form();
-        registrationForm.param("userName", userName);
-        registrationForm.param("pass", password);
-        Response response = client.target(url + "/register").request().post(Entity.form(registrationForm));
-
-        client.close();
-
-        return response.getStatus();
-
+    public int sendRegistration(String userName, String password) {
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Form registrationForm = new Form();
+            registrationForm.param("userName", userName);
+            registrationForm.param("pass", password);
+            Response response = client.target(url + "/register").request().post(Entity.form(registrationForm));
+            return response.getStatus();
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
     }
 
     public JSONObject getFileServerInfo() {
-        Client client = ClientBuilder.newClient();
-        Response response = client.target(url + "/files/serverInfo").request().get();
-        JSONObject fileServerInfo = getJsonFromResponse(response);
-
-        client.close();
-
-        return fileServerInfo;
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url + "/files/serverInfo").request().get();
+            return getJsonFromResponse(response);
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
     }
 
     @Override
     public JSONArray getIgnoredDirsInfo() {
-        Client client = ClientBuilder.newClient();
-        Response response = client.target(url + "/files/ignoredDirs").request().get();
-        JSONObject json = getJsonFromResponse(response);
-        return (JSONArray) json.get("ignoredDirs");
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url + "/files/ignoredDirs").request().get();
+            JSONObject json = getJsonFromResponse(response);
+            return (JSONArray) json.get("ignoredDirs");
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
     }
 
     @Override
     public JSONObject getFullHashInfo() {
-        Client client = ClientBuilder.newClient();
-        Response response = client.target(url + "/files/hash").request().get();
-        JSONObject jsonObject = getJsonFromResponse(response);
-        return jsonObject;
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url + "/files/hash").request().get();
+            return getJsonFromResponse(response);
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+    }
+
+    @Override
+    public boolean validateConnection() {
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url).request().get();
+            return response.getStatus() == Response.Status.OK.getStatusCode();
+        } finally {
+             if (client != null) {
+                 client.close();
+             }
+        }
+    }
+
+    @Override
+    public boolean validateVersionSupported(String currentVersion) {
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Form versionForm = new Form();
+            versionForm.param("version", currentVersion);
+            Response response = client.target(url + "/versionCheck").request().post(Entity.form(versionForm));
+            return response.getStatus() == Response.Status.OK.getStatusCode();
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+    }
+
+    @Override
+    public JSONObject getServersInfoJSON() {
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url + "/servers").request().get();
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                return getJsonFromResponse(response);
+            } else {
+                return null;
+            }
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
     }
 
     private JSONObject getJsonFromResponse(Response response) {
@@ -82,21 +156,5 @@ public class RestConnection extends Connection {
             e.printStackTrace();
         }
         return jsonObject;
-    }
-
-    @Override
-    public boolean validateConnection() {
-        Client client = ClientBuilder.newClient();
-        Response response = client.target(url).request().get();
-        return response.getStatus() == Response.Status.OK.getStatusCode();
-    }
-
-    @Override
-    public boolean validateVersionSupported(String currentVersion) {
-        Client client = ClientBuilder.newClient();
-        Form versionForm = new Form();
-        versionForm.param("version", currentVersion);
-        Response response = client.target(url + "/versionCheck").request().post(Entity.form(versionForm));
-        return response.getStatus() == Response.Status.OK.getStatusCode();
     }
 }

@@ -1,11 +1,15 @@
 package net.lim.view;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 import net.lim.controller.LauncherController;
+import net.lim.model.ServerInfo;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Limmy on 13.05.2018.
@@ -17,6 +21,7 @@ public class LoginPane extends HBox {
     private Button loginButton;
     private Button registrationButton;
     private RegistrationPane registrationPane;
+    private ChoiceBox serverListDropdown;
 
     public LoginPane(LauncherController controller, RegistrationPane registrationPane) {
         this.controller = controller;
@@ -29,8 +34,20 @@ public class LoginPane extends HBox {
         initPasswordField();
         initLoginButton();
         initRegistrationButton();
+        initComboBox(controller.retrieveServerList());
         addContent();
         setContentMargin();
+    }
+
+    private void initComboBox(List<ServerInfo> serverList) {
+        serverListDropdown = new ChoiceBox<>();
+        serverListDropdown.setOnAction(e -> controller.serverSelected(serverListDropdown.getValue()));
+        serverListDropdown.getItems().add("Offline");
+        serverListDropdown.setValue("Offline");
+        if (serverList.size() > 0) {
+            serverListDropdown.getItems().add(new Separator());
+            serverListDropdown.getItems().addAll(serverList);
+        }
     }
 
     private void initRegistrationButton() {
@@ -41,12 +58,13 @@ public class LoginPane extends HBox {
     private void setContentMargin() {
         setMargin(userNameField, new Insets(16, 8, 16, 16));
         setMargin(passwordField, new Insets(16, 8, 16, 16));
-        setMargin(loginButton, new Insets(16, 8, 16, 0));
-        setMargin(registrationButton, new Insets(16, 0, 16, 8));
+        setMargin(loginButton, new Insets(16, 8, 16, 16));
+        setMargin(registrationButton, new Insets(16, 8, 16, 0));
+        setMargin(serverListDropdown, new Insets(16, 0, 16, 8));
     }
 
     private void addContent() {
-        getChildren().addAll(userNameField, passwordField, loginButton, registrationButton);
+        getChildren().addAll(userNameField, passwordField, loginButton, registrationButton, serverListDropdown);
 
     }
 

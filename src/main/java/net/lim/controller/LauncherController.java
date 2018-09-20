@@ -11,12 +11,18 @@ import net.lim.LLauncher;
 import net.lim.model.Connection;
 import net.lim.model.FileManager;
 import net.lim.model.RestConnection;
+import net.lim.model.ServerInfo;
 import net.lim.model.service.LUtils;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Limmy on 28.04.2018.
@@ -32,6 +38,7 @@ public class LauncherController {
     private boolean isMaximized = false;
     private FileController fileController;
     private ProgressView progressView;
+    private ServerInfo selectedServer;
 
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
@@ -174,15 +181,17 @@ public class LauncherController {
     }
 
     private String getServerURL() {
-        //TODO its a stub
-        return "myServerURL";
+        if (selectedServer != null) {
+            return selectedServer.getIp() + ":" + selectedServer.getPort();
+        }
+        return ""; //offline connection
     }
 
     private void launchGame(String serverURL, String login) throws Exception {
         final String useCMDCommand = "cmd.exe /c ";
         String goToDiskCCommand = "C:";
         String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY ;
-        String fulllaunchCommand = new StringBuilder(useCMDCommand).append(goToDiskCCommand).append(" && ").append(goToDefaultDirCommand).append(" && ")
+        StringBuilder fullLaunchCommandBuilder = new StringBuilder(useCMDCommand).append(goToDiskCCommand).append(" && ").append(goToDefaultDirCommand).append(" && ")
                 .append("javaw ")
                 .append("-Xmx1G ")
                 .append("-XX:+UseConcMarkSweepGC ")
@@ -199,9 +208,11 @@ public class LauncherController {
                 .append("--uuid e90ca68a26004b80a737ace4cd74797d ")
                 .append("--accessToken 7658368cabe94fa2b7439e1b24b59910 ")
                 .append("--userProperties {} ")
-                .append("--userType mojang ")
-                .append("--server ").append(serverURL).toString();
-        Process launch = Runtime.getRuntime().exec(fulllaunchCommand);
+                .append("--userType mojang ");
+        if (serverURL != null && !serverURL.isEmpty()) {
+            fullLaunchCommandBuilder.append("--server ").append(serverURL);
+        }
+        Process launch = Runtime.getRuntime().exec(fullLaunchCommandBuilder.toString());
 
 
         if (launch.isAlive() || launch.exitValue() == 0) {
@@ -333,5 +344,31 @@ public class LauncherController {
 
     public void setProgressView(ProgressView progressView) {
         this.progressView = progressView;
+    }
+
+    public List<ServerInfo> retrieveServerList() {
+
+        JSONObject serversInfoJSON = connection.getServersInfoJSON();
+        if (serversInfoJSON == null) {
+            return Collections.emptyList();
+        }
+        List<ServerInfo> serverInfoList = new ArrayList<>();
+        JSONArray serversInfoArray = (JSONArray) serversInfoJSON.get("Servers");
+        for (Object serverInfoJSONObject: serversInfoArray) {
+            JSONObject serverInfoJSON = (JSONObject) serverInfoJSONObject;
+            String serverName = (String) serverInfoJSON.get("serverName");
+            String serverDescription = (String) serverInfoJSON.get("serverDescription");
+            String serverIPPort = (String) serverInfoJSON.get("serverIP");
+
+            serverInfoList.add(new ServerInfo(serverName, serverDescription, serverIPPort.split(":")[0], Integer.parseInt(serverIPPort.split(":")[1])));
+        }
+
+        return serverInfoList;
+    }
+
+    public void serverSelected(Object selectedServer) {
+        if (selectedServer instanceof ServerInfo) {
+            this.selectedServer = (ServerInfo) selectedServer;
+        }
     }
 }
