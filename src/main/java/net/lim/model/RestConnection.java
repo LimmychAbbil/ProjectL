@@ -6,6 +6,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -137,14 +138,15 @@ public class RestConnection extends Connection {
             Response response = client.target(url + "/servers").request().get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 return getJsonFromResponse(response);
-            } else {
-                return null;
             }
+        } catch (ProcessingException ignored) {
+            //NOOP: client not connected to server
         } finally {
             if (client != null) {
                 client.close();
             }
         }
+        return null;
     }
 
     private JSONObject getJsonFromResponse(Response response) {

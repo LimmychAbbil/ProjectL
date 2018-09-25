@@ -19,10 +19,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by Limmy on 28.04.2018.
@@ -54,8 +58,9 @@ public class LauncherController {
     }
 
     private void establishConnection() {
-        //TODO read configuration file (server ip)
-        connection = new RestConnection("http://localhost:8080/rest");
+        //can't be null here
+        String launchServerURL = readServerURLFromConfigFile();
+        connection = new RestConnection(launchServerURL);
         boolean connectionOK = connection.validateConnection();
         if (connectionOK) {
             boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
@@ -64,6 +69,25 @@ public class LauncherController {
             }
         } else {
             throw new RuntimeException("Can't establish connection");
+        }
+    }
+
+    private String readServerURLFromConfigFile() {
+        File configFile = new File(getClass().getClassLoader().getResource("configuration/client.config").getFile());
+        if (!configFile.exists()) {
+            throw new RuntimeException("Config file not exist");
+        } else {
+            try (FileReader reader = new FileReader(configFile)) {
+                Properties properties = new Properties();
+                properties.load(reader);
+                String serverIp = properties.getProperty("server.ip");
+                if (serverIp == null) {
+                    throw new RuntimeException("Config file doesn't contain server.ip property");
+                }
+                return serverIp;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -347,7 +371,7 @@ public class LauncherController {
     }
 
     public List<ServerInfo> retrieveServerList() {
-
+        if (connection == null) return Collections.emptyList();
         JSONObject serversInfoJSON = connection.getServersInfoJSON();
         if (serversInfoJSON == null) {
             return Collections.emptyList();
