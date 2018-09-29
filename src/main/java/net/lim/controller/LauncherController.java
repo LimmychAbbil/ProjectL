@@ -13,6 +13,7 @@ import net.lim.model.FileManager;
 import net.lim.model.RestConnection;
 import net.lim.model.ServerInfo;
 import net.lim.model.service.LUtils;
+import net.lim.view.BasicPane;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 import org.json.simple.JSONArray;
@@ -32,7 +33,7 @@ import java.util.Properties;
  * Created by Limmy on 28.04.2018.
  */
 public class LauncherController {
-    Connection connection;
+    private Connection connection;
     private Stage primaryStage;
     private HostServices hostServices;
     private static double currentX;
@@ -43,32 +44,37 @@ public class LauncherController {
     private FileController fileController;
     private ProgressView progressView;
     private ServerInfo selectedServer;
+    private BasicPane basicPane;
 
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
         this.primaryStage = primaryStage;
         initializeDefaultXAndY(primaryStage);
-        try {
-            //TODO make connection attempt async
-            establishConnection();
-        } catch (RuntimeException e) {
-            //TODO show temporary error popup
-            System.err.println("Can't establish connection: " + e.getMessage());
-        }
     }
 
-    private void establishConnection() {
+    public void establishConnection() {
         //can't be null here
         String launchServerURL = readServerURLFromConfigFile();
+        boolean connectionOK = false;
+        String errorMessage = null;
         connection = new RestConnection(launchServerURL);
-        boolean connectionOK = connection.validateConnection();
-        if (connectionOK) {
-            boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
-            if (!currentVersionSupported) {
-                throw new RuntimeException("Too old launcher version. Please upgrade");
+        try {
+             connectionOK = connection.validateConnection();
+            if (connectionOK) {
+                boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
+                if (!currentVersionSupported) {
+                    errorMessage = "Too old launcher version. Please upgrade";
+                    connectionOK = false;
+                }
+            } else {
+                errorMessage = "Can't establish connection";
             }
-        } else {
-            throw new RuntimeException("Can't establish connection");
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+            System.err.println("Connection attempt failed :" + e.getMessage());
+        }
+        if (basicPane != null) {
+            basicPane.setConnectionStatus(connectionOK, errorMessage);
         }
     }
 
@@ -394,5 +400,9 @@ public class LauncherController {
         if (selectedServer instanceof ServerInfo) {
             this.selectedServer = (ServerInfo) selectedServer;
         }
+    }
+
+    public void setBasicPane(BasicPane basicPane) {
+        this.basicPane = basicPane;
     }
 }

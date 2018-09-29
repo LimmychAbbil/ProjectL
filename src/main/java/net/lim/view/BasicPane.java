@@ -1,6 +1,8 @@
 package net.lim.view;
 
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
@@ -8,6 +10,7 @@ import net.lim.controller.LauncherController;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Created by Limmy on 28.04.2018.
@@ -19,7 +22,10 @@ public class BasicPane extends Pane {
     private LoginPane loginPane;
     private RegistrationPane registrationPane;
     private ProgressView progressView;
+    private ImageView lServerConnectionStatusIconView;
 
+    private final static URL offlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/offline.png");
+    private final static URL onlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/online.png");
     public BasicPane(LauncherController controller) throws IOException {
         this.controller = controller;
         init();
@@ -32,7 +38,33 @@ public class BasicPane extends Pane {
         initRegistrationPane();
         initLoginPane();
         initFileCheckView();
+        initConnectionStatusIconView();
         addContent();
+    }
+
+    public void setConnectionStatus(boolean isConnected, String message) {
+        if (isConnected) {
+            lServerConnectionStatusIconView.imageProperty().set(new Image(onlineIconURL.toString(), true));
+            lServerConnectionStatusIconView.setAccessibleText("Connected to the server");
+        } else {
+            lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
+            if (message != null) {
+                Tooltip.install(lServerConnectionStatusIconView, new Tooltip(message));
+            }
+        }
+    }
+
+    public void setConnectionStatus(boolean isConnected) {
+        setConnectionStatus(isConnected, null);
+    }
+
+    private void initConnectionStatusIconView() {
+        lServerConnectionStatusIconView = new ImageView();
+        lServerConnectionStatusIconView.xProperty().bind(this.widthProperty().add(-48));
+        lServerConnectionStatusIconView.yProperty().bind(headerPane.heightProperty().add(24));
+
+        lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
+        lServerConnectionStatusIconView.setOnMouseClicked(e -> controller.establishConnection());
     }
 
     private void initFileCheckView() {
@@ -70,7 +102,7 @@ public class BasicPane extends Pane {
     }
 
     private void addContent() {
-        getChildren().addAll(headerPane, newsPane, loginPane, registrationPane, progressView);
+        getChildren().addAll(headerPane, newsPane, loginPane, registrationPane, lServerConnectionStatusIconView, progressView);
     }
 
     private void initLoginPane() {
