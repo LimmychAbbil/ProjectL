@@ -1,13 +1,20 @@
 package net.lim.view;
 
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventType;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
-public class ProgressView extends Pane {
+public class ProgressView extends VBox {
     public ProgressIndicator progressIndicator;
     private Text textMessage;
 
@@ -19,6 +26,8 @@ public class ProgressView extends Pane {
         initProgressBar();
         initTextMessage();
         addContent();
+        this.setAlignment(Pos.CENTER);
+        this.setSpacing(10);
     }
 
     private void addContent() {
@@ -27,15 +36,11 @@ public class ProgressView extends Pane {
 
     private void initProgressBar() {
         progressIndicator = new ProgressIndicator();
-        progressIndicator.layoutXProperty().bind(this.widthProperty().divide(2));
-        progressIndicator.layoutYProperty().bind(this.heightProperty().divide(2));
-
     }
 
     private void initTextMessage() {
         textMessage = new Text("Connection...");
-        textMessage.xProperty().bind(progressIndicator.layoutXProperty().add(-20)); //TODO center-allignment
-        textMessage.yProperty().bind(progressIndicator.layoutYProperty().add(progressIndicator.heightProperty()).add(20));
+
         textMessage.setTextAlignment(TextAlignment.CENTER);
         textMessage.setFill(Color.WHITE);
     }
