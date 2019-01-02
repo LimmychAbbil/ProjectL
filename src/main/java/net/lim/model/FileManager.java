@@ -7,7 +7,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.*;
-import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -157,7 +156,6 @@ public class FileManager {
                 Files.createDirectories(localFile.getParent());
             }
             fileWriter = new FileOutputStream(localFile.toFile());
-            //TODO add buffer (downloading speed is too low)
             int read = 0;
             while ((read = stream.read(buffer, 0, buffer.length)) != -1) {
                 fileWriter.write(buffer, 0, read);

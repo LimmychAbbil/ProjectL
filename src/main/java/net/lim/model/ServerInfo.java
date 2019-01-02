@@ -1,5 +1,7 @@
 package net.lim.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ServerInfo {
     private String serverName;
     private String description;
@@ -19,8 +21,7 @@ public class ServerInfo {
 
     @Override
     public String toString() {
-        //TODO add StringUtils library
-        return (serverName == null || serverName.isEmpty()) ? "Unnamed server" + ip : serverName;
+        return (StringUtils.isEmpty(serverName)) ? "Unnamed server" + ip : serverName;
     }
 
     public String getIp() {
