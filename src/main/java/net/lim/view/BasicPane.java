@@ -3,6 +3,7 @@ package net.lim.view;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
@@ -16,6 +17,8 @@ import java.net.URL;
  * Created by Limmy on 28.04.2018.
  */
 public class BasicPane extends Pane {
+    private final static String DEFAULT_BACKGROUND_IMAGE_PATH = "src/main/resources/background.jpg";
+
     private final LauncherController controller;
     private HeaderPane headerPane;
     private NewsPane newsPane;
@@ -42,10 +45,15 @@ public class BasicPane extends Pane {
         addContent();
     }
 
+    private void postInitAfterConnect() {
+        addBackgroundImage();
+    }
+
     public void setConnectionStatus(boolean isConnected, String message) {
         if (isConnected) {
             lServerConnectionStatusIconView.imageProperty().set(new Image(onlineIconURL.toString(), true));
             lServerConnectionStatusIconView.setAccessibleText("Connected to the server");
+            postInitAfterConnect();
         } else {
             lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
             if (message != null) {
@@ -114,19 +122,20 @@ public class BasicPane extends Pane {
     }
 
     private void addBackgroundImage()  {
-        Image backgroundImage = null;
-        try {
-            backgroundImage = new Image(new FileInputStream(getBackgroundImagePath()));
-        } catch (FileNotFoundException e) {
-            //TODO set default background image
-            e.printStackTrace();
+        Image backgroundImage = controller.readServerImage();
+        if (backgroundImage == null) {
+            backgroundImage = getDefaultBackgroundImage();
         }
         BackgroundImage backGround = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
         setBackground(new Background(backGround));
     }
 
-    private String getBackgroundImagePath() {
-        //TODO it is a stub
-        return "./src/main/resources/background.jpg";
+    private Image getDefaultBackgroundImage() {
+        try {
+            return new Image(new FileInputStream(DEFAULT_BACKGROUND_IMAGE_PATH));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

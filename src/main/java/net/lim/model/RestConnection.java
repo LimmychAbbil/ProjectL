@@ -11,9 +11,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.io.*;
 import java.net.ConnectException;
 import java.util.List;
+
+import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 
 public class RestConnection extends Connection {
 
@@ -23,7 +28,6 @@ public class RestConnection extends Connection {
         this.url = url;
     }
 
-    //TODO should we create a new client for every call?
     @Override
     public boolean login(String userName, String password) {
         Client client = null;
@@ -147,6 +151,68 @@ public class RestConnection extends Connection {
             }
         }
         return null;
+    }
+
+    @Override
+    public File getBackgroundImage() {
+        String imageName = readBackgroundImageName();
+        File backgroundsDir = new File(DEFAULT_DIRECTORY + "backgrounds/");
+        if (!backgroundsDir.exists()) {
+            try {
+                boolean successfulCreatedDirectory = backgroundsDir.mkdir();
+                if (!successfulCreatedDirectory) {
+                    throw new IOException("Unsuccessful dir creation");
+                }
+            } catch (IOException e) {
+                System.err.println("Can't create backgrounds dir. Default background will be used");
+                e.printStackTrace();
+                return null;
+            }
+        }
+        File image = new File(backgroundsDir, imageName);
+        if (!image.exists()) {
+            downloadBackgroundImage(imageName, image);
+        }
+        return image;
+    }
+
+    private void downloadBackgroundImage(String imageName, File image) {
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url + "/images/get/" + imageName).request().get();
+            InputStream is = response.readEntity(InputStream.class);
+            if (is != null) {
+                FileOutputStream fos = new FileOutputStream(image);
+                while (is.available() > 0) {
+                    fos.write(is.read());
+                }
+                is.close();
+                fos.flush();
+                fos.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+
+    }
+
+    private String readBackgroundImageName() {
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url + "/images/current").request().get();
+            JSONObject currentImageNameJSON = getJsonFromResponse(response);
+            return (String) currentImageNameJSON.get("current.background");
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
     }
 
     private JSONObject getJsonFromResponse(Response response) {

@@ -4,6 +4,7 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -20,9 +21,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +58,7 @@ public class LauncherController {
         String errorMessage = null;
         connection = new RestConnection(launchServerURL);
         try {
-             connectionOK = connection.validateConnection();
+            connectionOK = connection.validateConnection();
             if (connectionOK) {
                 boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
                 if (!currentVersionSupported) {
@@ -220,7 +219,7 @@ public class LauncherController {
     private void launchGame(String serverURL, String login) throws Exception {
         final String useCMDCommand = "cmd.exe /c ";
         String goToDiskCCommand = "C:";
-        String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY ;
+        String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY;
         StringBuilder fullLaunchCommandBuilder = new StringBuilder(useCMDCommand).append(goToDiskCCommand).append(" && ").append(goToDefaultDirCommand).append(" && ")
                 .append("javaw ")
                 .append("-Xmx1G ")
@@ -258,7 +257,7 @@ public class LauncherController {
                 try {
                     fileController.deleteFiles();
                     fileController.initFTPConnection();
-                    for (String fileName: fileController.getFileNames()) {
+                    for (String fileName : fileController.getFileNames()) {
                         fileController.downloadFile(fileName);
 //                        updateProgress(fileController.getFileManager().getProgressCounter(), fileController.getFileManager().getTotalFilesSize());
                         updateMessage("Downloading files: " + fileController.getFileManager().getProgressCounter() +
@@ -384,7 +383,7 @@ public class LauncherController {
         }
         List<ServerInfo> serverInfoList = new ArrayList<>();
         JSONArray serversInfoArray = (JSONArray) serversInfoJSON.get("Servers");
-        for (Object serverInfoJSONObject: serversInfoArray) {
+        for (Object serverInfoJSONObject : serversInfoArray) {
             JSONObject serverInfoJSON = (JSONObject) serverInfoJSONObject;
             String serverName = (String) serverInfoJSON.get("serverName");
             String serverDescription = (String) serverInfoJSON.get("serverDescription");
@@ -404,5 +403,20 @@ public class LauncherController {
 
     public void setBasicPane(BasicPane basicPane) {
         this.basicPane = basicPane;
+    }
+
+    public Image readServerImage() {
+        if (connection == null) {
+            return null;
+        }
+        File backgroundImage = connection.getBackgroundImage();
+        if (backgroundImage != null && backgroundImage.exists()) {
+            try {
+                return new Image(new FileInputStream(backgroundImage));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 }

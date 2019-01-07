@@ -3,6 +3,8 @@ package net.lim.model;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.io.File;
+
 /**
  * Created by Limmy on 02.05.2018.
  */
@@ -22,6 +24,8 @@ public abstract class Connection {
     public abstract JSONObject getFullHashInfo();
 
     public abstract JSONObject getServersInfoJSON();
+
+    public abstract File getBackgroundImage();
 
     public static String getErrorMessage(int code) {
         switch (code) {
