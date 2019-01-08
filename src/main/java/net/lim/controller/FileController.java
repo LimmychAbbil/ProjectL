@@ -5,10 +5,13 @@ import net.lim.model.FileManager;
 import net.lim.view.ProgressView;
 import org.json.simple.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+
+import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 
 public class FileController {
     FileManager fileManager;
@@ -50,5 +53,32 @@ public class FileController {
 
     public FileManager getFileManager() {
         return fileManager;
+    }
+
+    public File getBackgroundImage(String backgroundName) throws IOException {
+        File backgroundsDir = new File(DEFAULT_DIRECTORY + "backgrounds/");
+        if (!backgroundsDir.exists()) {
+            try {
+                boolean successfulCreatedDirectory = backgroundsDir.mkdirs();
+                if (!successfulCreatedDirectory) {
+                    throw new IOException("Unsuccessful dir creation");
+                }
+            } catch (IOException e) {
+                System.err.println("Can't create backgrounds dir. Default background will be used");
+                e.printStackTrace();
+                return null;
+            }
+        }
+        File image = new File(backgroundsDir, backgroundName);
+        if (!image.exists()) {
+            downloadBackgroundImage(backgroundName, image.getName());
+        }
+        return image;
+    }
+
+    private void downloadBackgroundImage(String backgroundName, String localFileName) throws IOException {
+        fileManager.initFTPConnection();
+        fileManager.downloadFile("backgrounds/" + backgroundName, "backgrounds/" + localFileName);
+        fileManager.closeFTPConnection();
     }
 }

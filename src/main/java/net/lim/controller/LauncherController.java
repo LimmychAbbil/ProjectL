@@ -65,6 +65,8 @@ public class LauncherController {
                     errorMessage = "Too old launcher version. Please upgrade";
                     connectionOK = false;
                 }
+
+                initFileController(connection);
             } else {
                 errorMessage = "Can't establish connection";
             }
@@ -183,7 +185,6 @@ public class LauncherController {
     }
 
     private void startFileChecking(String userName) {
-        initFileController(connection);
         Task<Boolean> fileCheckTask = createFileCheckTask();
         progressView.getTextMessageProperty().bind(fileCheckTask.messageProperty());
         fileCheckTask.setOnSucceeded(e -> {
@@ -406,16 +407,18 @@ public class LauncherController {
     }
 
     public Image readServerImage() {
-        if (connection == null) {
+        if (connection == null || fileController == null) {
             return null;
         }
-        File backgroundImage = connection.getBackgroundImage();
+        String backgroundName = connection.getBackgroundImageName();
+        try {
+        File backgroundImage = fileController.getBackgroundImage(backgroundName);
         if (backgroundImage != null && backgroundImage.exists()) {
-            try {
+
                 return new Image(new FileInputStream(backgroundImage));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+        }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }

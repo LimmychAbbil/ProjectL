@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 //TODO folders are not released.
 public class FileManager {
     public static final String DEFAULT_DIRECTORY = System.getProperty("user.home") + File.separator + ".LServer" + File.separator;
@@ -29,6 +30,20 @@ public class FileManager {
         this.ftpHostURL = (String) serverInfo.get("host");
         this.ftpPort = (long) serverInfo.get("port");
         this.ftpUserName = (String) serverInfo.get("ftpUser");
+
+
+        prepateDefaultDir();
+    }
+
+    private void prepateDefaultDir() {
+        try {
+            defaultDir = Paths.get(DEFAULT_DIRECTORY);
+            if (!Files.exists(defaultDir)) {
+                Files.createDirectory(defaultDir);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getDefaultDirectory() {
@@ -47,6 +62,7 @@ public class FileManager {
     public boolean checkFiles() {
         JSONObject localHashInfo = getLocalFilesHash();
         if (localHashInfo.size() != remoteHashInfo.size()) {
+            System.out.println("Size differ");
             return false;
         }
         for (Object localFileNameObject : localHashInfo.keySet()) {
@@ -62,18 +78,11 @@ public class FileManager {
 
     private JSONObject getLocalFilesHash() {
         JSONObject fileListHashes = new JSONObject();
-        try {
-            defaultDir = Paths.get(DEFAULT_DIRECTORY);
-            if (!Files.exists(defaultDir)) {
-                    Files.createDirectory(defaultDir);
-            }
-            List<String> allLocalFilePaths = getAllLocalFiles(defaultDir);
-            for (String fileName: allLocalFilePaths) {
-                Path localFile = Paths.get(defaultDir.toString(), fileName).toAbsolutePath();
-                fileListHashes.put(fileName, computeMD5ForFile(localFile));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        List<String> allLocalFilePaths = getAllLocalFiles(defaultDir);
+        for (String fileName : allLocalFilePaths) {
+            Path localFile = Paths.get(defaultDir.toString(), fileName).toAbsolutePath();
+            fileListHashes.put(fileName, computeMD5ForFile(localFile));
         }
         return fileListHashes;
     }
@@ -81,9 +90,8 @@ public class FileManager {
     private String computeMD5ForFile(Path localFile) {
         try (InputStream is = new FileInputStream(localFile.toFile())) {
             return DigestUtils.md5Hex(is);
-        }
-        catch (IOException e) {
-            //TODO logger
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -94,7 +102,7 @@ public class FileManager {
         }
         List<String> allFilePaths = new ArrayList<>();
         File[] files = file.toFile().listFiles();
-        for (File f: files) {
+        for (File f : files) {
             if (f.isDirectory()) {
                 if (!ignoredDirs.contains(defaultDir.relativize(f.toPath()).toString())) {
                     allFilePaths.addAll(getAllLocalFiles(f.toPath()));
@@ -113,7 +121,7 @@ public class FileManager {
     public void deleteFiles(Path currentDir) {
         File[] listFiles = currentDir.toFile().listFiles();
         if (listFiles != null) {
-            for (File f: listFiles) {
+            for (File f : listFiles) {
                 if (f.isDirectory()) {
                     if (!isDirIgnored(f.toPath())) {
                         deleteFiles(f.toPath());
@@ -147,11 +155,20 @@ public class FileManager {
     }
 
     public void downloadFile(String fileName) throws IOException {
+        downloadFile(fileName, fileName);
+
+    }
+
+    public void downloadFile(String remoteFileName, File localFile) throws IOException {
+        downloadFile(remoteFileName, localFile.getAbsolutePath());
+    }
+
+    public void downloadFile(String remoteFileName, String localFilePath) throws IOException {
         FileOutputStream fileWriter = null;
         progressCounter++;
         byte[] buffer = new byte[1024];
-        try (InputStream stream = ftpClient.retrieveFileStream(new String(fileName.getBytes("UTF-8"), "ISO-8859-1"))) {
-            Path localFile = Paths.get(defaultDir.toString(), fileName);
+        try (InputStream stream = ftpClient.retrieveFileStream(new String(remoteFileName.getBytes("UTF-8"), "ISO-8859-1"))) {
+            Path localFile = Paths.get(defaultDir.toString(), localFilePath);
             if (!Files.exists(localFile.getParent())) {
                 Files.createDirectories(localFile.getParent());
             }
@@ -167,7 +184,6 @@ public class FileManager {
             }
         }
         ftpClient.completePendingCommand();
-
     }
 
     public void closeFTPConnection() throws IOException {

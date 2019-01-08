@@ -153,27 +153,8 @@ public class RestConnection extends Connection {
         return null;
     }
 
-    @Override
-    public File getBackgroundImage() {
-        String imageName = readBackgroundImageName();
-        File backgroundsDir = new File(DEFAULT_DIRECTORY + "backgrounds/");
-        if (!backgroundsDir.exists()) {
-            try {
-                boolean successfulCreatedDirectory = backgroundsDir.mkdir();
-                if (!successfulCreatedDirectory) {
-                    throw new IOException("Unsuccessful dir creation");
-                }
-            } catch (IOException e) {
-                System.err.println("Can't create backgrounds dir. Default background will be used");
-                e.printStackTrace();
-                return null;
-            }
-        }
-        File image = new File(backgroundsDir, imageName);
-        if (!image.exists()) {
-            downloadBackgroundImage(imageName, image);
-        }
-        return image;
+    public String getBackgroundImageName() {
+        return readBackgroundImageName();
     }
 
     private void downloadBackgroundImage(String imageName, File image) {

@@ -25,7 +25,7 @@ public abstract class Connection {
 
     public abstract JSONObject getServersInfoJSON();
 
-    public abstract File getBackgroundImage();
+    public abstract String getBackgroundImageName();
 
     public static String getErrorMessage(int code) {
         switch (code) {
