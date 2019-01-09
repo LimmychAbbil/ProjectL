@@ -1,6 +1,5 @@
 package net.lim.model;
 
-import net.lim.LLauncher;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,14 +10,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import java.io.*;
-import java.net.ConnectException;
-import java.util.List;
-
-import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 
 public class RestConnection extends Connection {
 
@@ -155,31 +147,6 @@ public class RestConnection extends Connection {
 
     public String getBackgroundImageName() {
         return readBackgroundImageName();
-    }
-
-    private void downloadBackgroundImage(String imageName, File image) {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
-            Response response = client.target(url + "/images/get/" + imageName).request().get();
-            InputStream is = response.readEntity(InputStream.class);
-            if (is != null) {
-                FileOutputStream fos = new FileOutputStream(image);
-                while (is.available() > 0) {
-                    fos.write(is.read());
-                }
-                is.close();
-                fos.flush();
-                fos.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (client != null) {
-                client.close();
-            }
-        }
-
     }
 
     private String readBackgroundImageName() {
