@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 //TODO folders are not released.
 public class FileManager {
@@ -62,7 +63,8 @@ public class FileManager {
     public boolean checkFiles() {
         JSONObject localHashInfo = getLocalFilesHash();
         if (localHashInfo.size() != remoteHashInfo.size()) {
-            System.out.println("Size differ");
+            System.out.println("Size differ: " + localHashInfo.size() + " but expected " + remoteHashInfo.size());
+            printDiff(localHashInfo, remoteHashInfo);
             return false;
         }
         for (Object localFileNameObject : localHashInfo.keySet()) {
@@ -74,6 +76,15 @@ public class FileManager {
             }
         }
         return true;
+    }
+
+    private void printDiff(JSONObject localHashInfo, JSONObject remoteHashInfo) {
+        if (localHashInfo.size() <= remoteHashInfo.size()) {
+            return;
+        } else {
+            localHashInfo.keySet().stream().filter(key -> !remoteHashInfo.containsKey(key))
+                    .forEach(o -> System.out.println(o + " is not allowed locally"));
+        }
     }
 
     private JSONObject getLocalFilesHash() {
@@ -104,7 +115,7 @@ public class FileManager {
         File[] files = file.toFile().listFiles();
         for (File f : files) {
             if (f.isDirectory()) {
-                if (!ignoredDirs.contains(defaultDir.relativize(f.toPath()).toString())) {
+                if (!ignoredDirs.contains("/" + defaultDir.relativize(f.toPath()).toString().replaceAll("\\\\", "/"))) {
                     allFilePaths.addAll(getAllLocalFiles(f.toPath()));
                 }
             } else {
