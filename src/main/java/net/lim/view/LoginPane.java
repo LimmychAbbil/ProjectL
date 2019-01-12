@@ -1,5 +1,7 @@
 package net.lim.view;
 
+import com.sun.javafx.collections.ImmutableObservableList;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -44,10 +46,7 @@ public class LoginPane extends HBox {
         serverListDropdown.setOnAction(e -> controller.serverSelected(serverListDropdown.getValue()));
         serverListDropdown.getItems().add("Offline");
         serverListDropdown.setValue("Offline");
-        if (serverList.size() > 0) {
-            serverListDropdown.getItems().add(new Separator());
-            serverListDropdown.getItems().addAll(serverList);
-        }
+        fillServersList(serverList);
     }
 
     private void initRegistrationButton() {
@@ -82,5 +81,16 @@ public class LoginPane extends HBox {
         userNameField = new TextField();
 
         userNameField.setPromptText("User Name");
+    }
+
+    public void updateServersList() {
+        fillServersList(controller.retrieveServerList());
+    }
+
+    private void fillServersList(List<ServerInfo> serverList) {
+        if (serverList.size() > 0) {
+            serverListDropdown.getItems().add(new Separator());
+            serverListDropdown.getItems().addAll(serverList);
+        }
     }
 }

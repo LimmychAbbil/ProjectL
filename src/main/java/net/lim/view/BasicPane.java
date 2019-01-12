@@ -47,6 +47,7 @@ public class BasicPane extends Pane {
 
     private void postInitAfterConnect() {
         addBackgroundImage();
+        loginPane.updateServersList();
     }
 
     public void setConnectionStatus(boolean isConnected, String message) {
