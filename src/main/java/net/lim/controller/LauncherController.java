@@ -18,6 +18,7 @@ import net.lim.model.service.LUtils;
 import net.lim.view.BasicPane;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -240,7 +241,7 @@ public class LauncherController {
                 .append("--accessToken 7658368cabe94fa2b7439e1b24b59910 ")
                 .append("--userProperties {} ")
                 .append("--userType mojang ");
-        if (serverURL != null && !serverURL.isEmpty()) {
+        if (StringUtils.isNotEmpty(serverURL)) {
             fullLaunchCommandBuilder.append("--server ").append(serverURL);
         }
         Process launch = Runtime.getRuntime().exec(fullLaunchCommandBuilder.toString());
