@@ -24,7 +24,7 @@ public class FileController {
         this.connection = connection;
         JSONObject ftpFileInto = this.connection.getFileServerInfo();
         fileManager = new FileManager(ftpFileInto);
-        fileManager.parseIgnoredDirs(connection.getIgnoredDirsInfo());
+        fileManager.parseIgnoredFiles(connection.getIgnoredFilesInfo());
         fileManager.setRemoteHashInfo(connection.getFullHashInfo());
         defaultDir = FileManager.getDefaultDirectory();
         homePath = Paths.get(defaultDir);

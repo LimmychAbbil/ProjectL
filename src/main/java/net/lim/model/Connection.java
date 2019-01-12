@@ -19,7 +19,7 @@ public abstract class Connection {
 
     public abstract JSONObject getFileServerInfo();
 
-    public abstract JSONArray getIgnoredDirsInfo();
+    public abstract JSONArray getIgnoredFilesInfo();
 
     public abstract JSONObject getFullHashInfo();
 

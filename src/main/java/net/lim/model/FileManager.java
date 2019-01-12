@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 
 //TODO folders are not released.
 public class FileManager {
@@ -21,7 +20,7 @@ public class FileManager {
     private final long ftpPort;
     private String ftpHostURL;
     private String ftpUserName;
-    private List<String> ignoredDirs;
+    private List<String> ignoredFiles;
     private Path defaultDir;
     private JSONObject remoteHashInfo;
     private int progressCounter;
@@ -51,13 +50,13 @@ public class FileManager {
         return DEFAULT_DIRECTORY;
     }
 
-    public List<String> getIgnoredDirs() {
-        return ignoredDirs;
+    public List<String> getIgnoredFiles() {
+        return ignoredFiles;
     }
 
     @SuppressWarnings("unchecked")
-    public void parseIgnoredDirs(JSONArray ignoredDirsList) {
-        ignoredDirs = new ArrayList<>(ignoredDirsList);
+    public void parseIgnoredFiles(JSONArray ignoredFilesList) {
+        ignoredFiles = new ArrayList<>(ignoredFilesList);
     }
 
     public boolean checkFiles() {
@@ -79,9 +78,7 @@ public class FileManager {
     }
 
     private void printDiff(JSONObject localHashInfo, JSONObject remoteHashInfo) {
-        if (localHashInfo.size() <= remoteHashInfo.size()) {
-            return;
-        } else {
+        if (localHashInfo.size() > remoteHashInfo.size()) {
             localHashInfo.keySet().stream().filter(key -> !remoteHashInfo.containsKey(key))
                     .forEach(o -> System.out.println(o + " is not allowed locally"));
         }
@@ -115,10 +112,11 @@ public class FileManager {
         File[] files = file.toFile().listFiles();
         for (File f : files) {
             if (f.isDirectory()) {
-                if (!ignoredDirs.contains("/" + defaultDir.relativize(f.toPath()).toString().replaceAll("\\\\", "/"))) {
+                if (!ignoredFiles.contains("/" + defaultDir.relativize(f.toPath()).toString().replaceAll("\\\\", "/") + "/")) {
                     allFilePaths.addAll(getAllLocalFiles(f.toPath()));
                 }
             } else {
+                if (!ignoredFiles.contains("/" + defaultDir.relativize(f.toPath()).toString().replaceAll("\\\\", "/")))
                 allFilePaths.add("/" + (defaultDir.relativize(f.toPath()).toString()).replaceAll("\\\\", "/"));
             }
         }
@@ -151,7 +149,7 @@ public class FileManager {
     }
 
     private boolean isDirIgnored(Path currentDir) {
-        return ignoredDirs.contains(defaultDir.relativize(currentDir).toString());
+        return ignoredFiles.contains(defaultDir.relativize(currentDir).toString());
     }
 
     public void initFTPConnection() throws IOException {

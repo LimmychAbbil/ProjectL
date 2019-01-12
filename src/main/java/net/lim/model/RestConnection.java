@@ -68,13 +68,13 @@ public class RestConnection extends Connection {
     }
 
     @Override
-    public JSONArray getIgnoredDirsInfo() {
+    public JSONArray getIgnoredFilesInfo() {
         Client client = null;
         try {
             client = ClientBuilder.newClient();
-            Response response = client.target(url + "/files/ignoredDirs").request().get();
+            Response response = client.target(url + "/files/ignoredFiles").request().get();
             JSONObject json = getJsonFromResponse(response);
-            return (JSONArray) json.get("ignoredDirs");
+            return (JSONArray) json.get("ignoredFiles");
         } finally {
             if (client != null) {
                 client.close();
