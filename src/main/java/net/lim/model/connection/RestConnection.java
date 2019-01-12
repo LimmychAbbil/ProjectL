@@ -1,4 +1,4 @@
-package net.lim.model;
+package net.lim.model.connection;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

@@ -1,6 +1,6 @@
 package net.lim.controller;
 
-import net.lim.model.Connection;
+import net.lim.model.connection.Connection;
 import net.lim.model.FileManager;
 import net.lim.view.ProgressView;
 import org.json.simple.JSONObject;
@@ -15,14 +15,12 @@ import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 
 public class FileController {
     FileManager fileManager;
-    private Connection connection;
     private String defaultDir;
     private Path homePath;
     private ProgressView progressView;
 
     FileController(Connection connection, ProgressView progressView) {
-        this.connection = connection;
-        JSONObject ftpFileInto = this.connection.getFileServerInfo();
+        JSONObject ftpFileInto = connection.getFileServerInfo();
         fileManager = new FileManager(ftpFileInto);
         fileManager.parseIgnoredFiles(connection.getIgnoredFilesInfo());
         fileManager.setRemoteHashInfo(connection.getFullHashInfo());
