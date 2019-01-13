@@ -196,7 +196,7 @@ public class LauncherController {
                 progressView.getTextMessageProperty().setValue("Launching");
                 startTask(createProgressCompleteTask(1000));
                 try {
-                    launchGame(getServerURL(), userName);
+                    launchGame(userName);
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -219,7 +219,7 @@ public class LauncherController {
         return ""; //offline connection
     }
 
-    private void launchGame(String serverURL, String login) throws Exception {
+    private void launchGame(String login) throws Exception {
         final String useCMDCommand = "cmd.exe /c ";
         String goToDiskCCommand = "C:";
         String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY;
@@ -241,8 +241,9 @@ public class LauncherController {
                 .append("--accessToken 7658368cabe94fa2b7439e1b24b59910 ")
                 .append("--userProperties {} ")
                 .append("--userType mojang ");
-        if (StringUtils.isNotEmpty(serverURL)) {
-            fullLaunchCommandBuilder.append("--server ").append(serverURL);
+        if (StringUtils.isNotEmpty(getServerURL())) {
+            fullLaunchCommandBuilder.append("--server ").append(selectedServer.getIp()).append(" ");
+            fullLaunchCommandBuilder.append(" --port ").append(selectedServer.getPort());
         }
         Process launch = Runtime.getRuntime().exec(fullLaunchCommandBuilder.toString());
 

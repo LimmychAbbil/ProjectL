@@ -39,7 +39,7 @@
 
     <groupId>net.lim</groupId>
     <artifactId>LLauncher</artifactId>
-    <version>0.03d</version>
+    <version>0.03e</version>
 
     <dependencies>
         <dependency>
