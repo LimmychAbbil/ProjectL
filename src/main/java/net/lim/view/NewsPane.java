@@ -21,8 +21,6 @@ import java.util.List;
  * Pane containing news area (textflow in scrollpane) and a button to hide/show this area.
  */
 public class NewsPane extends Pane {
-    //model
-    private AdvertisementReceiver advertisementReceiver;
     private LauncherController controller;
     private ScrollPane scrollPane;
     private TextFlow newsTextFlow;
@@ -36,11 +34,14 @@ public class NewsPane extends Pane {
         initShowHideButton();
         initScrollPane();
         initNewsFlow();
-        fillNewsFlow();
         addContent();
         this.relocate(0, 32);
         scrollPane.setContent(newsTextFlow);
         setOpacity(0.75);
+    }
+
+    public void postInit() {
+        fillNewsFlow();
     }
 
     private void initShowHideButton() {
@@ -58,15 +59,10 @@ public class NewsPane extends Pane {
     }
 
     private void fillNewsFlow() {
-        advertisementReceiver = new StubAdvertisementReceiver();
-        List<Advertisement> allAds = advertisementReceiver.recieveAdvertisements();
-
-        for (Advertisement ad: allAds) {
-            putNewToArea(ad);
-        }
+        controller.fillNewsFlow(this);
     }
 
-    private void putNewToArea(Advertisement advertisement) {
+    public void putNewToArea(Advertisement advertisement) {
         Text header = new Text(advertisement.getHeader() + "\n");
         header.setStyle("-fx-font-weight:bold; -fx-fill: darkgoldenrod");
         Text newsContent = new Text(advertisement.getText() + "\n");
@@ -74,7 +70,7 @@ public class NewsPane extends Pane {
 
         if (advertisement.getUrl() != null) {
             Text url = new Text("Read more >>>" + "\n");
-            url.setFill(Color.BLUE);
+            url.setFill(Color.valueOf("1B78B8"));
             url.setCursor(Cursor.HAND);
             url.setStyle("-fx-font-weight: bold");
             url.setOnMouseClicked(e -> controller.linkPressed(advertisement.getUrl()));

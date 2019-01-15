@@ -9,13 +9,9 @@ import java.util.List;
  * Created by Limmy on 13.05.2018.
  */
 public class StubAdvertisementReceiver implements AdvertisementReceiver {
-    @Override
-    public List<Advertisement> recieveAdvertisements() {
-        return recieveAdvertisements(20);
-    }
 
     @Override
-    public List<Advertisement> recieveAdvertisements(int maxNumber) {
+    public List<Advertisement> receiveAdvertisements(int maxNumber) {
         if (maxNumber < 0) {
             throw new IllegalArgumentException("Wrong number of news to recieve");
         }

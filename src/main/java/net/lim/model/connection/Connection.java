@@ -1,9 +1,11 @@
 package net.lim.model.connection;
 
+import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by Limmy on 02.05.2018.
@@ -26,6 +28,8 @@ public abstract class Connection {
     public abstract JSONObject getServersInfoJSON();
 
     public abstract String getBackgroundImageName();
+
+    public abstract List<Advertisement> getAdvs();
 
     public static String getErrorMessage(int code) {
         switch (code) {

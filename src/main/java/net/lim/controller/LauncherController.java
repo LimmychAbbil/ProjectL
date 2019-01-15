@@ -9,6 +9,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
+import net.lim.model.adv.Advertisement;
+import net.lim.model.adv.AdvertisementReceiver;
+import net.lim.model.adv.RestAdvertisementReceiver;
+import net.lim.model.adv.StubAdvertisementReceiver;
 import net.lim.model.connection.Connection;
 import net.lim.model.FileManager;
 import net.lim.model.connection.RestConnection;
@@ -16,6 +20,7 @@ import net.lim.model.ServerInfo;
 import net.lim.model.connection.StubConnection;
 import net.lim.model.service.LUtils;
 import net.lim.view.BasicPane;
+import net.lim.view.NewsPane;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
 import org.apache.commons.lang3.StringUtils;
@@ -424,5 +429,16 @@ public class LauncherController {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void fillNewsFlow(NewsPane newsPane) {
+        if (connection != null) {
+            AdvertisementReceiver advertisementReceiver = new RestAdvertisementReceiver(connection);
+            List<Advertisement> allAds = advertisementReceiver.receiveAdvertisements();
+
+            for (Advertisement ad : allAds) {
+                newsPane.putNewToArea(ad);
+            }
+        }
     }
 }

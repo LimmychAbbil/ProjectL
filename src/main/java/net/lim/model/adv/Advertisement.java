@@ -10,6 +10,10 @@ public class Advertisement {
     private String text;
     private URL url;
 
+    public Advertisement(String header) {
+        this.header = header;
+    }
+
     public Advertisement(String header, String text, URL url) {
         this.header = header;
         this.text = text;

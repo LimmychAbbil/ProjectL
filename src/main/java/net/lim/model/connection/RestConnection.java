@@ -1,5 +1,7 @@
 package net.lim.model.connection;
 
+import com.sun.javafx.fxml.builder.URLBuilder;
+import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,6 +13,12 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RestConnection extends Connection {
 
@@ -146,10 +154,6 @@ public class RestConnection extends Connection {
     }
 
     public String getBackgroundImageName() {
-        return readBackgroundImageName();
-    }
-
-    private String readBackgroundImageName() {
         Client client = null;
         try {
             client = ClientBuilder.newClient();
@@ -161,6 +165,43 @@ public class RestConnection extends Connection {
                 client.close();
             }
         }
+    }
+
+    @Override
+    public List<Advertisement> getAdvs() {
+        List<Advertisement> list = new ArrayList<>();
+        Client client = null;
+        try {
+            client = ClientBuilder.newClient();
+            Response response = client.target(url + "/adv").request().get();
+            JSONObject advJSON = getJsonFromResponse(response);
+            JSONArray allAdvs = (JSONArray) advJSON.get("Advertisements");
+            for (Object adv: allAdvs) {
+                String advString = (String) adv;
+                String[] advParts = advString.split(";");
+                Advertisement advertisement;
+                System.out.println(advString);
+                 if (advParts.length == 2) {
+                    advertisement = new Advertisement(advParts[0], advParts[1]);
+                } else if (advParts.length == 3) {
+                    try {
+                        advertisement = new Advertisement(advParts[0], advParts[1], URI.create(advParts[2]).toURL());
+                    } catch (MalformedURLException e) {
+                        advertisement = new Advertisement(advParts[0], advParts[1]);
+                    }
+                } else {
+                    continue;
+                }
+
+                list.add(advertisement);
+            }
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+
+        return list;
     }
 
     private JSONObject getJsonFromResponse(Response response) {

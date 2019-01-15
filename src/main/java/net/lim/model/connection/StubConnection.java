@@ -1,7 +1,12 @@
 package net.lim.model.connection;
 
+import net.lim.model.adv.Advertisement;
+import net.lim.model.adv.StubAdvertisementReceiver;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import java.util.Collections;
+import java.util.List;
 
 public class StubConnection extends Connection {
 
@@ -48,5 +53,10 @@ public class StubConnection extends Connection {
     @Override
     public String getBackgroundImageName() {
         return null;
+    }
+
+    @Override
+    public List<Advertisement> getAdvs() {
+        return Collections.emptyList();
     }
 }
