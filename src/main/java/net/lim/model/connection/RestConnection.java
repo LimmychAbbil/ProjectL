@@ -180,7 +180,6 @@ public class RestConnection extends Connection {
                 String advString = (String) adv;
                 String[] advParts = advString.split(";");
                 Advertisement advertisement;
-                System.out.println(advString);
                  if (advParts.length == 2) {
                     advertisement = new Advertisement(advParts[0], advParts[1]);
                 } else if (advParts.length == 3) {

@@ -112,11 +112,11 @@ public class FileManager {
         File[] files = file.toFile().listFiles();
         for (File f : files) {
             if (f.isDirectory()) {
-                if (!ignoredFiles.contains("/" + defaultDir.relativize(f.toPath()).toString().replaceAll("\\\\", "/") + "/")) {
+                if (!isDirIgnored(f.toPath())) {
                     allFilePaths.addAll(getAllLocalFiles(f.toPath()));
                 }
             } else {
-                if (!ignoredFiles.contains("/" + defaultDir.relativize(f.toPath()).toString().replaceAll("\\\\", "/")))
+                if (!isFileIgnored(f.toPath()))
                 allFilePaths.add("/" + (defaultDir.relativize(f.toPath()).toString()).replaceAll("\\\\", "/"));
             }
         }
@@ -139,7 +139,9 @@ public class FileManager {
                     }
                 } else {
                     try {
-                        Files.delete(f.toPath());
+                        if (!isFileIgnored(f.toPath())) {
+                            Files.delete(f.toPath());
+                        }
                     } catch (IOException e) {
                         //TODO logger
                     }
@@ -148,8 +150,12 @@ public class FileManager {
         }
     }
 
+    private boolean isFileIgnored(Path file) {
+        return ignoredFiles.contains("/" + defaultDir.relativize(file).toString().replaceAll("\\\\", "/"));
+    }
+
     private boolean isDirIgnored(Path currentDir) {
-        return ignoredFiles.contains(defaultDir.relativize(currentDir).toString());
+        return ignoredFiles.contains("/" + defaultDir.relativize(currentDir).toString().replaceAll("\\\\", "/") + "/");
     }
 
     public void initFTPConnection() throws IOException {
