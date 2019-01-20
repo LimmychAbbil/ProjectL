@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.net.URL;
  * Created by Limmy on 28.04.2018.
  */
 public class BasicPane extends Pane {
-    private final static String DEFAULT_BACKGROUND_IMAGE_PATH = "src/main/resources/background.jpg";
+    private final static String DEFAULT_BACKGROUND_IMAGE_NAME = "background.jpg";
 
     private final LauncherController controller;
     private HeaderPane headerPane;
@@ -135,7 +136,12 @@ public class BasicPane extends Pane {
 
     private Image getDefaultBackgroundImage() {
         try {
-            return new Image(new FileInputStream(DEFAULT_BACKGROUND_IMAGE_PATH));
+            URL defaultBackgroundURL = this.getClass().getClassLoader().getResource(DEFAULT_BACKGROUND_IMAGE_NAME);
+            if (defaultBackgroundURL != null) {
+                return new Image(defaultBackgroundURL.toString(), true);
+            } else {
+                throw new FileNotFoundException("Can't find default background");
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;

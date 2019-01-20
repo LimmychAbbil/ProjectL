@@ -9,15 +9,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
+import net.lim.model.FileManager;
+import net.lim.model.ServerInfo;
 import net.lim.model.adv.Advertisement;
 import net.lim.model.adv.AdvertisementReceiver;
 import net.lim.model.adv.RestAdvertisementReceiver;
-import net.lim.model.adv.StubAdvertisementReceiver;
 import net.lim.model.connection.Connection;
-import net.lim.model.FileManager;
 import net.lim.model.connection.RestConnection;
-import net.lim.model.ServerInfo;
-import net.lim.model.connection.StubConnection;
 import net.lim.model.service.LUtils;
 import net.lim.view.BasicPane;
 import net.lim.view.NewsPane;
@@ -28,7 +26,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,21 +88,16 @@ public class LauncherController {
     }
 
     private String readServerURLFromConfigFile() {
-        File configFile = new File(getClass().getClassLoader().getResource("configuration/client.config").getFile());
-        if (!configFile.exists()) {
-            throw new RuntimeException("Config file not exist");
-        } else {
-            try (FileReader reader = new FileReader(configFile)) {
-                Properties properties = new Properties();
-                properties.load(reader);
-                String serverIp = properties.getProperty("server.ip");
-                if (serverIp == null) {
-                    throw new RuntimeException("Config file doesn't contain server.ip property");
-                }
-                return serverIp;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try (InputStream reader = getClass().getClassLoader().getResourceAsStream("configuration/client.config")) {
+            Properties properties = new Properties();
+            properties.load(reader);
+            String serverIp = properties.getProperty("server.ip");
+            if (serverIp == null) {
+                throw new RuntimeException("Config file doesn't contain server.ip property");
             }
+            return serverIp;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -225,12 +221,20 @@ public class LauncherController {
     }
 
     private void launchGame(String login) throws Exception {
-        final String useCMDCommand = "cmd.exe /c ";
+        String useCMDCommand = "cmd.exe /c ";
         String goToDiskCCommand = "C:";
+        String commandSeparator = " && ";
+        System.out.println(System.getProperty("os.name"));
         String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY;
-        StringBuilder fullLaunchCommandBuilder = new StringBuilder(useCMDCommand).append(goToDiskCCommand).append(" && ").append(goToDefaultDirCommand).append(" && ")
-                .append("javaw ")
-                .append("-Xmx1G ")
+        StringBuilder fullLaunchCommandBuilder = new StringBuilder();
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            fullLaunchCommandBuilder.append(useCMDCommand).append(goToDiskCCommand).append(commandSeparator).append(goToDefaultDirCommand).append(commandSeparator);
+        } else {
+            fullLaunchCommandBuilder.append("sh ").append(goToDefaultDirCommand).append(" ; ");
+        }
+
+        fullLaunchCommandBuilder.append("javaw ")
+                .append("-Xmx4G ")
                 .append("-XX:+UseConcMarkSweepGC ")
                 .append("-XX:-UseAdaptiveSizePolicy ")
                 .append("-Xmn128M ")
@@ -420,11 +424,11 @@ public class LauncherController {
         }
         String backgroundName = connection.getBackgroundImageName();
         try {
-        File backgroundImage = fileController.getBackgroundImage(backgroundName);
-        if (backgroundImage != null && backgroundImage.exists()) {
+            File backgroundImage = fileController.getBackgroundImage(backgroundName);
+            if (backgroundImage != null && backgroundImage.exists()) {
 
                 return new Image(new FileInputStream(backgroundImage));
-        }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
