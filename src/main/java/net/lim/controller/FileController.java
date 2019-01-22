@@ -1,7 +1,7 @@
 package net.lim.controller;
 
-import net.lim.model.connection.Connection;
 import net.lim.model.FileManager;
+import net.lim.model.connection.Connection;
 import net.lim.view.ProgressView;
 import org.json.simple.JSONObject;
 
@@ -33,19 +33,19 @@ public class FileController {
         return fileManager.checkFiles();
     }
 
-    void deleteFiles() {
+    public void deleteFiles() {
        fileManager.deleteFiles(homePath);
     }
 
-    void initFTPConnection() throws IOException {
+    public void initFTPConnection() throws IOException {
         fileManager.initFTPConnection();
     }
-    Collection<String> getFileNames() throws Exception {
+    public Collection<String> getFileNames() throws Exception {
         return fileManager.getFileNames();
     }
 
 
-    void downloadFile(String fileName) throws Exception {
+    public void downloadFile(String fileName) throws Exception {
         fileManager.downloadFile(fileName);
     }
 

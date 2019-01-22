@@ -9,6 +9,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
+import net.lim.controller.tasks.DownloadFilesService;
+import net.lim.controller.tasks.LoginService;
 import net.lim.model.FileManager;
 import net.lim.model.ServerInfo;
 import net.lim.model.adv.Advertisement;
@@ -26,10 +28,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +50,9 @@ public class LauncherController {
     private FileController fileController;
     private ProgressView progressView;
     private ServerInfo selectedServer;
-    private BasicPane basicPane;
+    private BasicPane basicView;
+    private DownloadFilesService downloadService;
+    private LoginService loginService;
 
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
@@ -59,7 +60,19 @@ public class LauncherController {
         initializeDefaultXAndY(primaryStage);
     }
 
-    public void establishConnection() {
+    /**
+     * @throws IllegalStateException if called before view is ready
+     */
+    public void init() {
+        if (primaryStage == null || basicView == null) {
+            throw new IllegalStateException("Not ready");
+        }
+        establishConnection();
+        this.downloadService = new DownloadFilesService(fileController);
+        this.loginService = new LoginService(connection);
+    }
+
+    private void establishConnection() {
         //can't be null here
         String launchServerURL = readServerURLFromConfigFile();
         boolean connectionOK = false;
@@ -82,8 +95,8 @@ public class LauncherController {
             errorMessage = e.getMessage();
             System.err.println("Connection attempt failed :" + e.getMessage());
         }
-        if (basicPane != null) {
-            basicPane.setConnectionStatus(connectionOK, errorMessage);
+        if (basicView != null) {
+            basicView.setConnectionStatus(connectionOK, errorMessage);
         }
     }
 
@@ -172,19 +185,7 @@ public class LauncherController {
 
     public void loginButtonPressed(String userName, String password) {
         progressView.setVisible(true);
-        Task<Boolean> loginTask = createLoginTask(userName, password);
-        progressView.getTextMessageProperty().bind(loginTask.messageProperty());
-        loginTask.setOnSucceeded(e -> {
-            boolean loginSuccess = loginTask.getValue();
-
-            if (loginSuccess) {
-                startFileChecking(userName);
-            } else {
-                startTask(createProgressCompleteTask(5000));
-            }
-
-        });
-        startTask(loginTask);
+        createLoginTask(userName, password);
     }
 
     private void startFileChecking(String userName) {
@@ -202,12 +203,7 @@ public class LauncherController {
                     e1.printStackTrace();
                 }
             } else {
-                Task<Void> downloadFilesTask = createDownloadTask();
-                progressView.getTextMessageProperty().bind(downloadFilesTask.messageProperty());
-                startTask(downloadFilesTask);
-                downloadFilesTask.setOnSucceeded(event -> {
-                    startFileChecking(userName);
-                });
+                createDownloadTask(userName);
             }
         });
         startTask(fileCheckTask);
@@ -224,7 +220,6 @@ public class LauncherController {
         String useCMDCommand = "cmd.exe /c ";
         String goToDiskCCommand = "C:";
         String commandSeparator = " && ";
-        System.out.println(System.getProperty("os.name"));
         String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY;
         StringBuilder fullLaunchCommandBuilder = new StringBuilder();
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -234,7 +229,7 @@ public class LauncherController {
         }
 
         fullLaunchCommandBuilder.append("javaw ")
-                .append("-Xmx4G ")
+                .append("-Xmx3G ")
                 .append("-XX:+UseConcMarkSweepGC ")
                 .append("-XX:-UseAdaptiveSizePolicy ")
                 .append("-Xmn128M ")
@@ -258,34 +253,26 @@ public class LauncherController {
 
 
         if (launch.isAlive() || launch.exitValue() == 0) {
+            BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(launch.getInputStream()));
+            while (inputStreamReader.ready()) {
+                System.err.println(inputStreamReader.readLine());
+            }
             Platform.exit();
+        } else {
+            BufferedReader errStreamReader = new BufferedReader(new InputStreamReader(launch.getErrorStream()));
+            while (errStreamReader.ready()) {
+                System.err.println(errStreamReader.readLine());
+            }
         }
     }
 
-    private Task<Void> createDownloadTask() {
-        return new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                updateMessage("Downloading files...");
-                try {
-                    fileController.deleteFiles();
-                    fileController.initFTPConnection();
-                    for (String fileName : fileController.getFileNames()) {
-                        fileController.downloadFile(fileName);
-//                        updateProgress(fileController.getFileManager().getProgressCounter(), fileController.getFileManager().getTotalFilesSize());
-                        updateMessage("Downloading files: " + fileController.getFileManager().getProgressCounter() +
-                                " / " + fileController.getFileManager().getTotalFilesSize());
-                    }
-                    System.out.println("Download finished");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    //TODO process finally if something went wrong
-                    fileController.getFileManager().closeFTPConnection();
-                }
-                return null;
-            }
-        };
+    private void createDownloadTask(String userName) {
+        downloadService.start();
+
+        progressView.getTextMessageProperty().bind(downloadService.messageProperty());
+        downloadService.setOnSucceeded(event -> {
+            startFileChecking(userName);
+        });
     }
 
     private Task<Boolean> createFileCheckTask() {
@@ -305,23 +292,19 @@ public class LauncherController {
         taskThread.start();
     }
 
-    private Task<Boolean> createLoginTask(String userName, String password) {
-        return new Task<Boolean>() {
-            @Override
-            protected Boolean call() {
-                updateMessage("Login...");
-                boolean loginSuccess = false;
-                try {
-                    loginSuccess = connection.login(userName, password);
-                    if (!loginSuccess) {
-                        updateMessage("Wrong user or password");
+    private void createLoginTask(String userName, String password) {
+        loginService.start(userName, password);
+
+        loginService.setOnSucceeded(e -> {
+                    boolean loginSuccess = loginService.getValue();
+
+                    if (loginSuccess) {
+                        startFileChecking(userName);
+                    } else {
+                        startTask(createProgressCompleteTask(5000));
                     }
-                } catch (Exception e) {
-                    updateMessage("Can't connect: " + e.getMessage());
                 }
-                return loginSuccess;
-            }
-        };
+        );
     }
 
     private Task<Void> createProgressCompleteTask(long milis) {
@@ -414,8 +397,8 @@ public class LauncherController {
         }
     }
 
-    public void setBasicPane(BasicPane basicPane) {
-        this.basicPane = basicPane;
+    public void setBasicView(BasicPane basicView) {
+        this.basicView = basicView;
     }
 
     public Image readServerImage() {
@@ -443,6 +426,14 @@ public class LauncherController {
             for (Advertisement ad : allAds) {
                 newsPane.putNewToArea(ad);
             }
+        }
+    }
+
+    public void connectionIconPressed() {
+        if (connection == null) {
+            establishConnection();
+        } else {
+            //TODO update connection if needed
         }
     }
 }

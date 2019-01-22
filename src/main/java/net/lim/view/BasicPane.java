@@ -3,13 +3,10 @@ package net.lim.view;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -76,7 +73,7 @@ public class BasicPane extends Pane {
         lServerConnectionStatusIconView.yProperty().bind(headerPane.heightProperty().add(24));
 
         lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
-        lServerConnectionStatusIconView.setOnMouseClicked(e -> controller.establishConnection());
+        lServerConnectionStatusIconView.setOnMouseClicked(e -> controller.connectionIconPressed());
     }
 
     private void initFileCheckView() {
