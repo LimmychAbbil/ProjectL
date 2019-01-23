@@ -37,7 +37,7 @@ public class RestConnection extends Connection {
             loginForm.param("userName", userName);
             loginForm.param("pass", password);
             Response response = client.target(url + "/login").request().post(Entity.form(loginForm));
-            return response.getStatus() == 200;
+            return response.getStatus() == Response.Status.OK.getStatusCode();
         } finally {
             if (client != null) {
                 client.close();
@@ -67,7 +67,12 @@ public class RestConnection extends Connection {
         try {
             client = ClientBuilder.newClient();
             Response response = client.target(url + "/files/serverInfo").request().get();
-            return getJsonFromResponse(response);
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                return getJsonFromResponse(response);
+            } else {
+                //TODO handle server error
+                return new JSONObject();
+            }
         } finally {
             if (client != null) {
                 client.close();
@@ -96,7 +101,12 @@ public class RestConnection extends Connection {
         try {
             client = ClientBuilder.newClient();
             Response response = client.target(url + "/files/hash").request().get();
-            return getJsonFromResponse(response);
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                return getJsonFromResponse(response);
+            } else {
+                //TODO handle server error
+                return new JSONObject();
+            }
         } finally {
             if (client != null) {
                 client.close();
