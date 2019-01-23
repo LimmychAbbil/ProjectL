@@ -4,11 +4,11 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
+import net.lim.controller.tasks.BackgroundRecieverTask;
 import net.lim.controller.tasks.DownloadFilesService;
 import net.lim.controller.tasks.LoginService;
 import net.lim.model.FileManager;
@@ -28,7 +28,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -401,21 +403,10 @@ public class LauncherController {
         this.basicView = basicView;
     }
 
-    public Image readServerImage() {
-        if (connection == null || fileController == null) {
-            return null;
-        }
-        String backgroundName = connection.getBackgroundImageName();
-        try {
-            File backgroundImage = fileController.getBackgroundImage(backgroundName);
-            if (backgroundImage != null && backgroundImage.exists()) {
-
-                return new Image(new FileInputStream(backgroundImage));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public BackgroundRecieverTask createAndStartBackgroundReceiverTask() {
+        BackgroundRecieverTask readServerImageTask = new BackgroundRecieverTask(connection, fileController);
+        startTask(readServerImageTask);
+        return readServerImageTask;
     }
 
     public void fillNewsFlow(NewsPane newsPane) {
