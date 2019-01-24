@@ -423,8 +423,8 @@ public class LauncherController {
     public void connectionIconPressed() {
         if (connection == null) {
             establishConnection();
-        } else {
-            //TODO update connection if needed
         }
+        //TODO else update connection if needed
+
     }
 }

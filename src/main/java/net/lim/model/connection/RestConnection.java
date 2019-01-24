@@ -1,6 +1,5 @@
 package net.lim.model.connection;
 
-import com.sun.javafx.fxml.builder.URLBuilder;
 import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -13,10 +12,8 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 

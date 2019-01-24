@@ -1,14 +1,8 @@
 package net.lim.view;
 
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventType;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;

@@ -14,7 +14,7 @@ import java.util.Collection;
 import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 
 public class FileController {
-    FileManager fileManager;
+    private FileManager fileManager;
     private String defaultDir;
     private Path homePath;
     private ProgressView progressView;

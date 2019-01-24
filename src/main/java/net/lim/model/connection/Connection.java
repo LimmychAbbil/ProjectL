@@ -4,7 +4,6 @@ import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.File;
 import java.util.List;
 
 /**

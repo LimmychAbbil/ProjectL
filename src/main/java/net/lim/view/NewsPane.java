@@ -12,10 +12,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import net.lim.controller.LauncherController;
 import net.lim.model.adv.Advertisement;
-import net.lim.model.adv.AdvertisementReceiver;
-import net.lim.model.adv.StubAdvertisementReceiver;
-
-import java.util.List;
 
 /**
  * Pane containing news area (textflow in scrollpane) and a button to hide/show this area.

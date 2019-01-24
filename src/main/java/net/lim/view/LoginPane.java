@@ -1,16 +1,11 @@
 package net.lim.view;
 
-import com.sun.javafx.collections.ImmutableObservableList;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.util.Callback;
 import net.lim.controller.LauncherController;
 import net.lim.model.ServerInfo;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
