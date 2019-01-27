@@ -9,12 +9,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class BackgroundRecieverTask extends Task<Image> {
+public class BackgroundReceiverTask extends Task<Image> {
 
     private final Connection connection;
     private final FileController fileController;
 
-    public BackgroundRecieverTask(Connection connection, FileController controller) {
+    public BackgroundReceiverTask(Connection connection, FileController controller) {
         this.connection = connection;
         this.fileController = controller;
     }

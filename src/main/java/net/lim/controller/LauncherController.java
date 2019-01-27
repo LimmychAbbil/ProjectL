@@ -8,7 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
-import net.lim.controller.tasks.BackgroundRecieverTask;
+import net.lim.controller.tasks.BackgroundReceiverTask;
 import net.lim.controller.tasks.DownloadFilesService;
 import net.lim.controller.tasks.LoginService;
 import net.lim.model.FileManager;
@@ -403,8 +403,8 @@ public class LauncherController {
         this.basicView = basicView;
     }
 
-    public BackgroundRecieverTask createAndStartBackgroundReceiverTask() {
-        BackgroundRecieverTask readServerImageTask = new BackgroundRecieverTask(connection, fileController);
+    public BackgroundReceiverTask createAndStartBackgroundReceiverTask() {
+        BackgroundReceiverTask readServerImageTask = new BackgroundReceiverTask(connection, fileController);
         startTask(readServerImageTask);
         return readServerImageTask;
     }

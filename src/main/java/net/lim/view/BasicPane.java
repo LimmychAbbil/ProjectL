@@ -6,7 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
-import net.lim.controller.tasks.BackgroundRecieverTask;
+import net.lim.controller.tasks.BackgroundReceiverTask;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -124,7 +124,7 @@ public class BasicPane extends Pane {
     }
 
     private void addBackgroundImage()  {
-        BackgroundRecieverTask backgroundImageTask = controller.createAndStartBackgroundReceiverTask();
+        BackgroundReceiverTask backgroundImageTask = controller.createAndStartBackgroundReceiverTask();
         backgroundImageTask.setOnSucceeded(e -> {
             Image backgroundImage = backgroundImageTask.getValue();
             if (backgroundImage == null) {

@@ -162,6 +162,7 @@ public class FileManager {
         ftpClient = new FTPClient();
         ftpClient.connect(ftpHostURL, (int) ftpPort);
         boolean loginSuccess = ftpClient.login(ftpUserName, null);
+        ftpClient.enterLocalPassiveMode();
         ftpClient.setControlEncoding("UTF-8");
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         if (!loginSuccess) {
