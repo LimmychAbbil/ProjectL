@@ -23,11 +23,13 @@ public class BasicPane extends Pane {
     private NewsPane newsPane;
     private LoginPane loginPane;
     private RegistrationPane registrationPane;
+    private SettingsPane settingsPane;
     private ProgressView progressView;
     private ImageView lServerConnectionStatusIconView;
 
     private final static URL offlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/offline.png");
     private final static URL onlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/online.png");
+
     public BasicPane(LauncherController controller) throws IOException {
         this.controller = controller;
         init();
@@ -37,11 +39,19 @@ public class BasicPane extends Pane {
         addBackgroundImage();
         initHeaderPane();
         initNewsPane();
+        initConnectionStatusIconView();
+        initSettingsPane();
         initRegistrationPane();
         initLoginPane();
         initFileCheckView();
-        initConnectionStatusIconView();
         addContent();
+    }
+
+    private void initSettingsPane() {
+        this.settingsPane = new SettingsPane(controller);
+        settingsPane.setVisible(false);
+        settingsPane.layoutYProperty().bind(lServerConnectionStatusIconView.yProperty().add(32));
+        settingsPane.layoutXProperty().bind(this.widthProperty().add(settingsPane.widthProperty().multiply(-1)));
     }
 
     private void postInitAfterConnect() {
@@ -68,13 +78,17 @@ public class BasicPane extends Pane {
         setConnectionStatus(isConnected, null);
     }
 
+    public boolean getConnectionStatus() {
+        return "Connected to the server".equals(lServerConnectionStatusIconView.accessibleTextProperty().get());
+    }
+
     private void initConnectionStatusIconView() {
         lServerConnectionStatusIconView = new ImageView();
         lServerConnectionStatusIconView.xProperty().bind(this.widthProperty().add(-48));
         lServerConnectionStatusIconView.yProperty().bind(headerPane.heightProperty().add(24));
 
         lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
-        lServerConnectionStatusIconView.setOnMouseClicked(e -> controller.connectionIconPressed());
+        lServerConnectionStatusIconView.setOnMouseClicked(e -> this.settingsPane.setVisible(!settingsPane.isVisible()));
     }
 
     private void initFileCheckView() {
@@ -93,7 +107,7 @@ public class BasicPane extends Pane {
     private void initRegistrationPane() {
         registrationPane = new RegistrationPane(controller);
         registrationPane.setVisible(false);
-        registrationPane.layoutYProperty().bind(this.heightProperty().divide(2.5));
+        registrationPane.layoutYProperty().bind(settingsPane.layoutYProperty().add(settingsPane.heightProperty()).add(16));
         registrationPane.layoutXProperty().bind(this.widthProperty().add(registrationPane.widthProperty().multiply(-1)));
     }
 
@@ -112,7 +126,7 @@ public class BasicPane extends Pane {
     }
 
     private void addContent() {
-        getChildren().addAll(headerPane, newsPane, loginPane, registrationPane, lServerConnectionStatusIconView, progressView);
+        getChildren().addAll(headerPane, newsPane, loginPane, settingsPane, registrationPane, lServerConnectionStatusIconView, progressView);
     }
 
     private void initLoginPane() {
@@ -123,7 +137,7 @@ public class BasicPane extends Pane {
         loginPane.layoutYProperty().bind(this.heightProperty().add(-48));
     }
 
-    private void addBackgroundImage()  {
+    private void addBackgroundImage() {
         BackgroundReceiverTask backgroundImageTask = controller.createAndStartBackgroundReceiverTask();
         backgroundImageTask.setOnSucceeded(e -> {
             Image backgroundImage = backgroundImageTask.getValue();

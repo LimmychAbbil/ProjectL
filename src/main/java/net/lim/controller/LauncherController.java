@@ -79,8 +79,8 @@ public class LauncherController {
         String launchServerURL = readServerURLFromConfigFile();
         boolean connectionOK = false;
         String errorMessage = null;
-        connection = new RestConnection(launchServerURL);
         try {
+            connection = new RestConnection(launchServerURL);
             connectionOK = connection.validateConnection();
             if (connectionOK) {
                 boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
@@ -421,10 +421,11 @@ public class LauncherController {
     }
 
     public void connectionIconPressed() {
-        if (connection == null) {
+        if (connection == null || !basicView.getConnectionStatus()) {
             establishConnection();
         }
-        //TODO else update connection if needed
+
+        //TODO change connection if url changed
 
     }
 }
