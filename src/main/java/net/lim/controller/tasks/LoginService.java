@@ -19,6 +19,7 @@ public class LoginService extends Service<Boolean> {
     }
 
     public void start(String userName, String password) {
+        this.reset();
         this.userName = userName;
         this.password = password;
         super.start();

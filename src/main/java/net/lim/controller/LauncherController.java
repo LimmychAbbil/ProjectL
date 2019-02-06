@@ -13,6 +13,7 @@ import net.lim.controller.tasks.DownloadFilesService;
 import net.lim.controller.tasks.LoginService;
 import net.lim.model.FileManager;
 import net.lim.model.ServerInfo;
+import net.lim.model.Settings;
 import net.lim.model.adv.Advertisement;
 import net.lim.model.adv.AdvertisementReceiver;
 import net.lim.model.adv.RestAdvertisementReceiver;
@@ -75,8 +76,13 @@ public class LauncherController {
     }
 
     private void establishConnection() {
-        //can't be null here
-        String launchServerURL = readServerURLFromConfigFile();
+        String launchServerURL = null;
+        if (Settings.getInstance().getLserverURL() == null) {
+            //can't be null here
+            launchServerURL = readServerURLFromConfigFile();
+        } else {
+            launchServerURL = Settings.getInstance().getLserverURL();
+        }
         boolean connectionOK = false;
         String errorMessage = null;
         try {
@@ -421,11 +427,8 @@ public class LauncherController {
     }
 
     public void connectionIconPressed() {
-        if (connection == null || !basicView.getConnectionStatus()) {
+        if (connection == null || !basicView.getConnectionStatus() || Settings.getInstance().getLserverURL() != null) {
             establishConnection();
         }
-
-        //TODO change connection if url changed
-
     }
 }

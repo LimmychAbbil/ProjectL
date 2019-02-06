@@ -1,6 +1,5 @@
 package net.lim.view;
 
-import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -11,7 +10,6 @@ import javafx.scene.paint.Color;
 import net.lim.LLauncher;
 import net.lim.controller.LauncherController;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 
 /**

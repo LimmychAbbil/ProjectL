@@ -1,7 +1,6 @@
 package net.lim.model.connection;
 
 import net.lim.model.adv.Advertisement;
-import net.lim.model.adv.StubAdvertisementReceiver;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 

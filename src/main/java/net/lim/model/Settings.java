@@ -3,45 +3,45 @@ package net.lim.model;
 public class Settings {
     private static Settings ourInstance = new Settings();
 
-    private static String xms;
-    private static String filesDir;
-    private static boolean offlineMode = false;
-    private static String lserverURL;
+    private String xms;
+    private String filesDir;
+    private boolean offlineMode = false;
+    private String lserverURL;
 
     public static Settings getInstance() {
         return ourInstance;
     }
 
-    public static String getXms() {
+    public String getXms() {
         return xms;
     }
 
-    public static void setXms(String xms) {
-        Settings.xms = xms;
+    public void setXms(String xms) {
+        this.xms = xms;
     }
 
-    public static String getFilesDir() {
+    public String getFilesDir() {
         return filesDir;
     }
 
-    public static void setFilesDir(String filesDir) {
-        Settings.filesDir = filesDir;
+    public void setFilesDir(String filesDir) {
+        this.filesDir = filesDir;
     }
 
-    public static boolean isOfflineMode() {
+    public boolean isOfflineMode() {
         return offlineMode;
     }
 
-    public static void setOfflineMode(boolean offlineMode) {
-        Settings.offlineMode = offlineMode;
+    public void setOfflineMode(boolean offlineMode) {
+        this.offlineMode = offlineMode;
     }
 
-    public static String getLserverURL() {
+    public String getLserverURL() {
         return lserverURL;
     }
 
-    public static void setLserverURL(String lserverURL) {
-        Settings.lserverURL = lserverURL;
+    public void setLserverURL(String lserverURL) {
+        this.lserverURL = lserverURL;
     }
 
     private Settings() {
