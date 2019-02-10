@@ -14,6 +14,7 @@ public class DownloadFilesService extends Service<Void> {
 
     @Override
     protected Task<Void> createTask() {
+        fileController.getFileManager().resetProgressCounter();
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {

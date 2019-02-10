@@ -1,8 +1,5 @@
 package net.lim.view;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -14,6 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
 import net.lim.model.Settings;
+import org.apache.commons.lang3.StringUtils;
 
 public class SettingsPane extends GridPane {
     private LauncherController controller;
@@ -48,8 +46,8 @@ public class SettingsPane extends GridPane {
         this.serverURL = new TextField();
         this.serverURL.setPromptText("LServer URL");
         this.serverURL.focusedProperty().addListener(e -> {
-            if (!serverURL.isFocused()) {
-                Settings.getInstance().setLserverURL(serverURL.textProperty().get());
+            if (!serverURL.isFocused() && StringUtils.isNotEmpty(serverURL.getText())) {
+                Settings.getInstance().setLserverURL(serverURL.getText());
             }
         });
     }

@@ -212,6 +212,10 @@ public class FileManager {
         return progressCounter;
     }
 
+    public void resetProgressCounter() {
+        progressCounter = 0;
+    }
+
     public int getTotalFilesSize() {
         return getFileNames().size();
     }
