@@ -462,6 +462,8 @@ public class LauncherController {
     public void connectionIconPressed() {
         if (connection == null || !basicView.getConnectionStatus() || Settings.getInstance().getLserverURL() != null) {
             establishConnection();
+            this.downloadService = new DownloadFilesService(fileController);
+            this.loginService = new LoginService(connection);
         }
     }
 }
