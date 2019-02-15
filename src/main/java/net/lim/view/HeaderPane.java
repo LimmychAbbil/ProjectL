@@ -1,5 +1,6 @@
 package net.lim.view;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -45,30 +46,34 @@ public class HeaderPane extends Pane {
 
     private void initCloseButton() throws IOException {
         Image exitImage = new Image(this.getClass().getClassLoader().getResource("exit.png").toString());
-        exitButton = new ImageView(exitImage);
-        exitButton.layoutYProperty().setValue(8);
-        exitButton.layoutXProperty().bind(this.widthProperty().add(-24));
+        exitButton = initControlButton(exitImage, this.widthProperty());
+
         exitButton.setOnMouseClicked(event -> controller.closeButtonPressed());
     }
 
     private void initMaximizeButton() throws IOException {
-        Image exitImage = new Image(this.getClass().getClassLoader().getResource("maximize.png").toString());
-        maximizeButton = new ImageView(exitImage);
-        maximizeButton.layoutYProperty().set(8);
-        maximizeButton.layoutXProperty().bind(exitButton.layoutXProperty().add(-24));
+        Image maximizeImage = new Image(this.getClass().getClassLoader().getResource("maximize.png").toString());
+        maximizeButton = initControlButton(maximizeImage, exitButton.layoutXProperty());
 
         maximizeButton.setOnMouseClicked(event -> controller.maximizePressed());
     }
 
     private void initMinimizeButton() throws IOException {
-        Image exitImage = new Image(this.getClass().getClassLoader().getResource("minimize.png").toString());
-        minimizeButton = new ImageView(exitImage);
-        minimizeButton.layoutYProperty().set(8);
-        minimizeButton.layoutXProperty().bind(maximizeButton.layoutXProperty().add(-24));
+        Image minimizeImage = new Image(this.getClass().getClassLoader().getResource("minimize.png").toString());
+        minimizeButton = initControlButton(minimizeImage, maximizeButton.layoutXProperty());
 
         minimizeButton.setOnMouseClicked(event -> controller.minimizedPressed());
     }
 
+
+    private ImageView initControlButton(Image image, ReadOnlyDoubleProperty anchor) {
+        ImageView imageButton = new ImageView(image);
+        imageButton.layoutYProperty().set(8);
+        imageButton.setPickOnBounds(true);
+        imageButton.layoutXProperty().bind(anchor.add(-24));
+
+        return imageButton;
+    }
     private void initHeaderText() {
         headerText = new Label(LLauncher.PROGRAM_NAME + " " + LLauncher.PROGRAM_VERSION);
         headerText.setStyle("-fx-text-fill: black; -fx-font-size: 16");
