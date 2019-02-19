@@ -68,9 +68,10 @@ public class BasicPane extends Pane {
             postInitAfterConnect();
         } else {
             lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
-            if (message != null) {
-                Tooltip.install(lServerConnectionStatusIconView, new Tooltip(message));
-            }
+            lServerConnectionStatusIconView.setAccessibleText(message);
+        }
+        if (lServerConnectionStatusIconView.getAccessibleText() != null) {
+            Tooltip.install(lServerConnectionStatusIconView, new Tooltip(lServerConnectionStatusIconView.getAccessibleText()));
         }
     }
 

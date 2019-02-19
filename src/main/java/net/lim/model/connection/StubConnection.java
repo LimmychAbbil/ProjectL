@@ -31,17 +31,17 @@ public class StubConnection extends Connection {
 
     @Override
     public JSONObject getFileServerInfo() {
-        throw new IllegalStateException("Shouldn't launch program when launcher is on debug mode");
+        throw new IllegalStateException("Shouldn't get here when offline mode is selected");
     }
 
     @Override
     public JSONArray getIgnoredFilesInfo() {
-        throw new IllegalStateException("Shouldn't launch program when launcher is on debug mode");
+        throw new IllegalStateException("Shouldn't get here when offline mode is selected");
     }
 
     @Override
     public JSONObject getFullHashInfo() {
-        throw new IllegalStateException("Shouldn't launch program when launcher is on debug mode");
+        throw new IllegalStateException("Shouldn't get here when offline mode is selected");
     }
 
     @Override

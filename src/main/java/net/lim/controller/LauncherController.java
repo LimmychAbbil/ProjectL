@@ -19,6 +19,7 @@ import net.lim.model.adv.AdvertisementReceiver;
 import net.lim.model.adv.RestAdvertisementReceiver;
 import net.lim.model.connection.Connection;
 import net.lim.model.connection.RestConnection;
+import net.lim.model.connection.StubConnection;
 import net.lim.model.service.LUtils;
 import net.lim.view.BasicPane;
 import net.lim.view.NewsPane;
@@ -87,22 +88,28 @@ public class LauncherController {
         boolean connectionOK = false;
         String errorMessage = null;
         try {
-            connection = new RestConnection(launchServerURL);
-            connectionOK = connection.validateConnection();
-            if (connectionOK) {
-                boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
-                if (!currentVersionSupported) {
-                    errorMessage = "Too old launcher version. Please upgrade";
-                    connectionOK = false;
-                }
+            if (!Settings.getInstance().isOfflineMode()) {
+                connection = new RestConnection(launchServerURL);
+                connectionOK = connection.validateConnection();
+                if (connectionOK) {
+                    boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
+                    if (!currentVersionSupported) {
+                        errorMessage = "Too old launcher version. Please upgrade";
+                        connectionOK = false;
+                    }
 
-                initFileController(connection);
+                    initFileController(connection);
+                } else {
+                    errorMessage = "Can't establish connection";
+                }
             } else {
-                errorMessage = "Can't establish connection";
+                //do nothing for offline mode
+                connection = new StubConnection();
+                connectionOK = true;
             }
         } catch (Exception e) {
             errorMessage = e.getMessage();
-            System.err.println("Connection attempt failed :" + e.getMessage());
+            System.err.println("Connection attempt failed: " + e.getMessage());
         }
         if (basicView != null) {
             basicView.setConnectionStatus(connectionOK, errorMessage);
@@ -322,6 +329,7 @@ public class LauncherController {
             @Override
             protected Boolean call() throws Exception {
                 updateMessage("Check files");
+                if (Settings.getInstance().isOfflineMode()) return true;
                 return fileController.checkFiles();
             }
         };
@@ -459,8 +467,9 @@ public class LauncherController {
         }
     }
 
-    public void connectionIconPressed() {
-        if (connection == null || !basicView.getConnectionStatus() || Settings.getInstance().getLserverURL() != null) {
+    public void reconnectButtonPressed() {
+        if (connection == null || !basicView.getConnectionStatus()
+                || connection instanceof StubConnection || Settings.getInstance().getLserverURL() != null) {
             establishConnection();
             this.downloadService = new DownloadFilesService(fileController);
             this.loginService = new LoginService(connection);

@@ -39,7 +39,7 @@ public class SettingsPane extends GridPane {
 
     private void initReconnectButton() {
         this.reconnect = new Button("Reconnect");
-        this.reconnect.setOnMouseClicked(e -> controller.connectionIconPressed());
+        this.reconnect.setOnMouseClicked(e -> controller.reconnectButtonPressed());
     }
 
     private void initServerURL() {
@@ -60,6 +60,11 @@ public class SettingsPane extends GridPane {
 
     private void initOfflineModeCheckbox() {
         this.offlineModeCheckBox = new CheckBox("Use offline mode");
+        this.offlineModeCheckBox.setOnMouseClicked(e -> {
+            Settings.getInstance().setOfflineMode(offlineModeCheckBox.isSelected());
+            //reconnect
+            controller.reconnectButtonPressed();
+        });
     }
 
     private void initSlider() {
