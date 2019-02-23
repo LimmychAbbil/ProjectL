@@ -475,4 +475,8 @@ public class LauncherController {
             this.loginService = new LoginService(connection);
         }
     }
+
+    public void defaultDirectorySelected(String text) {
+        Settings.getInstance().setFilesDir(text);
+    }
 }

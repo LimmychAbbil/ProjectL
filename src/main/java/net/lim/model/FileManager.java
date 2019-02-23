@@ -6,7 +6,11 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,10 +36,10 @@ public class FileManager {
         this.ftpUserName = (String) serverInfo.get("ftpUser");
 
 
-        prepateDefaultDir();
+        prepareDefaultDir();
     }
 
-    private void prepateDefaultDir() {
+    private void prepareDefaultDir() {
         try {
             defaultDir = Paths.get(DEFAULT_DIRECTORY);
             if (!Files.exists(defaultDir)) {

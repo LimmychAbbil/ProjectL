@@ -9,9 +9,13 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import net.lim.controller.LauncherController;
+import net.lim.model.FileManager;
 import net.lim.model.Settings;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
 
 public class SettingsPane extends GridPane {
     private LauncherController controller;
@@ -56,6 +60,14 @@ public class SettingsPane extends GridPane {
         this.useCustomDirectory = new CheckBox("Use custom dir");
         this.directoryPath = new TextField();
         this.directoryPath.visibleProperty().bind(useCustomDirectory.selectedProperty());
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setInitialDirectory(new File(FileManager.getDefaultDirectory()));
+        directoryPath.onMouseClickedProperty().setValue(e -> {
+            directoryPath.setText(chooser.showDialog(null).toString());
+            chooser.setInitialDirectory(new File(directoryPath.getText()));
+            controller.defaultDirectorySelected(directoryPath.getText());
+        });
+
     }
 
     private void initOfflineModeCheckbox() {
