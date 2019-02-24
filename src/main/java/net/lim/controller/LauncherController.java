@@ -233,15 +233,22 @@ public class LauncherController {
     }
 
     private void launchGame(String login) throws Exception {
+        boolean isCustomDirUsed = StringUtils.isNotEmpty(Settings.getInstance().getFilesDir());
         String useCMDCommand = "cmd.exe /c ";
-        String goToDiskCCommand = "C:";
+        String goToDiskCommand = isCustomDirUsed ? Settings.getInstance().getFilesDir().substring(0, Settings.getInstance().getFilesDir().indexOf(":") + 1)
+                : "C:";
         String commandSeparator = " && ";
-        String goToDefaultDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY;
+        String goToDirCommand;
+        if (isCustomDirUsed) {
+            goToDirCommand = "cd " + Settings.getInstance().getFilesDir();
+        } else {
+            goToDirCommand = "cd" + FileManager.DEFAULT_DIRECTORY;
+        }
         StringBuilder fullLaunchCommandBuilder = new StringBuilder();
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            fullLaunchCommandBuilder.append(useCMDCommand).append(goToDiskCCommand).append(commandSeparator).append(goToDefaultDirCommand).append(commandSeparator);
+            fullLaunchCommandBuilder.append(useCMDCommand).append(goToDiskCommand).append(commandSeparator).append(goToDirCommand).append(commandSeparator);
         } else {
-            fullLaunchCommandBuilder.append("sh ").append(goToDefaultDirCommand).append(" ; ");
+            fullLaunchCommandBuilder.append("sh ").append(goToDirCommand).append(" ; ");
         }
 
         fullLaunchCommandBuilder.append("java ")
@@ -478,5 +485,8 @@ public class LauncherController {
 
     public void defaultDirectorySelected(String text) {
         Settings.getInstance().setFilesDir(text);
+        if (fileController != null) {
+            fileController.updateDirectory();
+        }
     }
 }

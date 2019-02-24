@@ -1,8 +1,10 @@
 package net.lim.controller;
 
 import net.lim.model.FileManager;
+import net.lim.model.Settings;
 import net.lim.model.connection.Connection;
 import net.lim.view.ProgressView;
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -24,7 +26,7 @@ public class FileController {
         fileManager = new FileManager(ftpFileInto);
         fileManager.parseIgnoredFiles(connection.getIgnoredFilesInfo());
         fileManager.setRemoteHashInfo(connection.getFullHashInfo());
-        defaultDir = FileManager.getDefaultDirectory();
+        defaultDir = DEFAULT_DIRECTORY;
         homePath = Paths.get(defaultDir);
         this.progressView = progressView;
     }
@@ -78,5 +80,12 @@ public class FileController {
         fileManager.initFTPConnection();
         fileManager.downloadFile("backgrounds/" + backgroundName, "backgrounds/" + localFileName);
         fileManager.closeFTPConnection();
+    }
+
+    public void updateDirectory() {
+        if (StringUtils.isNotEmpty(Settings.getInstance().getFilesDir())) {
+            this.defaultDir = Settings.getInstance().getFilesDir();
+            fileManager.setFilesDirectory(Paths.get(defaultDir));
+        }
     }
 }

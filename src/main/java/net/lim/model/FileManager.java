@@ -25,7 +25,7 @@ public class FileManager {
     private String ftpHostURL;
     private String ftpUserName;
     private List<String> ignoredFiles;
-    private Path defaultDir;
+    private Path filesDirectory;
     private JSONObject remoteHashInfo;
     private int progressCounter;
     private FTPClient ftpClient;
@@ -35,23 +35,18 @@ public class FileManager {
         this.ftpPort = (long) serverInfo.get("port");
         this.ftpUserName = (String) serverInfo.get("ftpUser");
 
-
-        prepareDefaultDir();
+        filesDirectory = Paths.get(DEFAULT_DIRECTORY);
+        prepareDir();
     }
 
-    private void prepareDefaultDir() {
-        try {
-            defaultDir = Paths.get(DEFAULT_DIRECTORY);
-            if (!Files.exists(defaultDir)) {
-                Files.createDirectory(defaultDir);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+    public void setFilesDirectory(Path filesDirectory) {
+        this.filesDirectory = filesDirectory;
+        prepareDir();
     }
 
-    public static String getDefaultDirectory() {
-        return DEFAULT_DIRECTORY;
+    public Path getFilesDirectory() {
+        return filesDirectory;
     }
 
     public List<String> getIgnoredFiles() {
@@ -81,33 +76,6 @@ public class FileManager {
         return true;
     }
 
-    private void printDiff(JSONObject localHashInfo, JSONObject remoteHashInfo) {
-        if (localHashInfo.size() > remoteHashInfo.size()) {
-            localHashInfo.keySet().stream().filter(key -> !remoteHashInfo.containsKey(key))
-                    .forEach(o -> System.out.println(o + " is not allowed locally"));
-        }
-    }
-
-    private JSONObject getLocalFilesHash() {
-        JSONObject fileListHashes = new JSONObject();
-
-        List<String> allLocalFilePaths = getAllLocalFiles(defaultDir);
-        for (String fileName : allLocalFilePaths) {
-            Path localFile = Paths.get(defaultDir.toString(), fileName).toAbsolutePath();
-            fileListHashes.put(fileName, computeMD5ForFile(localFile));
-        }
-        return fileListHashes;
-    }
-
-    private String computeMD5ForFile(Path localFile) {
-        try (InputStream is = new FileInputStream(localFile.toFile())) {
-            return DigestUtils.md5Hex(is);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public List<String> getAllLocalFiles(Path file) {
         if (!Files.isDirectory(file)) {
             throw new IllegalArgumentException("File " + file.toAbsolutePath().toString() + " should be directory");
@@ -121,7 +89,7 @@ public class FileManager {
                 }
             } else {
                 if (!isFileIgnored(f.toPath()))
-                allFilePaths.add("/" + (defaultDir.relativize(f.toPath()).toString()).replaceAll("\\\\", "/"));
+                allFilePaths.add("/" + (filesDirectory.relativize(f.toPath()).toString()).replaceAll("\\\\", "/"));
             }
         }
         return allFilePaths;
@@ -154,14 +122,6 @@ public class FileManager {
         }
     }
 
-    private boolean isFileIgnored(Path file) {
-        return ignoredFiles.contains("/" + defaultDir.relativize(file).toString().replaceAll("\\\\", "/"));
-    }
-
-    private boolean isDirIgnored(Path currentDir) {
-        return ignoredFiles.contains("/" + defaultDir.relativize(currentDir).toString().replaceAll("\\\\", "/") + "/");
-    }
-
     public void initFTPConnection() throws IOException {
         ftpClient = new FTPClient();
         ftpClient.connect(ftpHostURL, (int) ftpPort);
@@ -188,7 +148,7 @@ public class FileManager {
         progressCounter++;
         byte[] buffer = new byte[1024];
         try (InputStream stream = ftpClient.retrieveFileStream(new String(remoteFileName.getBytes("UTF-8"), "ISO-8859-1"))) {
-            Path localFile = Paths.get(defaultDir.toString(), localFilePath);
+            Path localFile = Paths.get(filesDirectory.toString(), localFilePath);
             if (!Files.exists(localFile.getParent())) {
                 Files.createDirectories(localFile.getParent());
             }
@@ -226,5 +186,50 @@ public class FileManager {
 
     public Collection<String> getFileNames() {
         return remoteHashInfo.keySet();
+    }
+
+    private void printDiff(JSONObject localHashInfo, JSONObject remoteHashInfo) {
+        if (localHashInfo.size() > remoteHashInfo.size()) {
+            localHashInfo.keySet().stream().filter(key -> !remoteHashInfo.containsKey(key))
+                    .forEach(o -> System.out.println(o + " is not allowed locally"));
+        }
+    }
+
+    private JSONObject getLocalFilesHash() {
+        JSONObject fileListHashes = new JSONObject();
+
+        List<String> allLocalFilePaths = getAllLocalFiles(filesDirectory);
+        for (String fileName : allLocalFilePaths) {
+            Path localFile = Paths.get(filesDirectory.toString(), fileName).toAbsolutePath();
+            fileListHashes.put(fileName, computeMD5ForFile(localFile));
+        }
+        return fileListHashes;
+    }
+
+    private String computeMD5ForFile(Path localFile) {
+        try (InputStream is = new FileInputStream(localFile.toFile())) {
+            return DigestUtils.md5Hex(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private boolean isFileIgnored(Path file) {
+        return ignoredFiles.contains("/" + filesDirectory.relativize(file).toString().replaceAll("\\\\", "/"));
+    }
+
+    private boolean isDirIgnored(Path currentDir) {
+        return ignoredFiles.contains("/" + filesDirectory.relativize(currentDir).toString().replaceAll("\\\\", "/") + "/");
+    }
+
+    private void prepareDir() {
+        try {
+            if (!Files.exists(filesDirectory)) {
+                Files.createDirectory(filesDirectory);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
