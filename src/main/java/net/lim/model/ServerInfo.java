@@ -21,7 +21,7 @@ public class ServerInfo {
 
     @Override
     public String toString() {
-        return (StringUtils.isEmpty(serverName)) ? "Unnamed server" + ip : serverName;
+        return (StringUtils.isEmpty(serverName)) ? "Unnamed server" + ip : serverName + "\n" + getDescription();
     }
 
     public String getIp() {
@@ -30,5 +30,9 @@ public class ServerInfo {
 
     public int getPort() {
         return port;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
