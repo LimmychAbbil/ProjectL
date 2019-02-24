@@ -9,7 +9,6 @@ import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
@@ -18,7 +17,6 @@ import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 public class FileController {
     private FileManager fileManager;
     private String defaultDir;
-    private Path homePath;
     private ProgressView progressView;
 
     FileController(Connection connection, ProgressView progressView) {
@@ -27,7 +25,6 @@ public class FileController {
         fileManager.parseIgnoredFiles(connection.getIgnoredFilesInfo());
         fileManager.setRemoteHashInfo(connection.getFullHashInfo());
         defaultDir = DEFAULT_DIRECTORY;
-        homePath = Paths.get(defaultDir);
         this.progressView = progressView;
     }
 
@@ -36,7 +33,7 @@ public class FileController {
     }
 
     public void deleteFiles() {
-       fileManager.deleteFiles(homePath);
+       fileManager.deleteFiles(Paths.get(defaultDir));
     }
 
     public void initFTPConnection() throws IOException {

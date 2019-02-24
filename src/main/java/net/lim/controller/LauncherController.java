@@ -242,7 +242,7 @@ public class LauncherController {
         if (isCustomDirUsed) {
             goToDirCommand = "cd " + Settings.getInstance().getFilesDir();
         } else {
-            goToDirCommand = "cd" + FileManager.DEFAULT_DIRECTORY;
+            goToDirCommand = "cd " + FileManager.DEFAULT_DIRECTORY;
         }
         StringBuilder fullLaunchCommandBuilder = new StringBuilder();
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
