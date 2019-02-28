@@ -212,7 +212,7 @@ public class LauncherController {
             if (filesOK) {
                 progressView.getTextMessageProperty().unbind();
                 progressView.getTextMessageProperty().setValue("Launching");
-                startTask(createProgressCompleteTask(1000));
+                startTask(createWaitingTask(1000));
                 try {
                     launchGame(userName);
                 } catch (Exception e1) {
@@ -328,6 +328,9 @@ public class LauncherController {
         downloadService.setOnSucceeded(event -> {
             startFileChecking(userName);
         });
+        downloadService.setOnFailed(e -> {
+            startTask(createWaitingTask(5 * 1000));
+        });
     }
 
     private Task<Boolean> createFileCheckTask() {
@@ -357,13 +360,13 @@ public class LauncherController {
                     if (loginSuccess) {
                         startFileChecking(userName);
                     } else {
-                        startTask(createProgressCompleteTask(5000));
+                        startTask(createWaitingTask(5000));
                     }
                 }
         );
     }
 
-    private Task<Void> createProgressCompleteTask(long milis) {
+    private Task<Void> createWaitingTask(long milis) {
 
         return new Task<Void>() {
             @Override

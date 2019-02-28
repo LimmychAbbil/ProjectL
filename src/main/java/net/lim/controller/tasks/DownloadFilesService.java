@@ -29,7 +29,10 @@ public class DownloadFilesService extends Service<Void> {
                                 " / " + fileController.getFileManager().getTotalFilesSize());
                     }
                 } catch (Exception e) {
+                    updateMessage("Error occurred during downloading: " + e.getMessage() + "\n" +
+                            "Login again to retry");
                     e.printStackTrace();
+                    setException(e);
                 } finally {
                     //TODO process finally if something went wrong
                     fileController.getFileManager().closeFTPConnection();
