@@ -17,18 +17,16 @@ import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 public class FileController {
     private FileManager fileManager;
     private String defaultDir;
-    private ProgressView progressView;
 
-    FileController(Connection connection, ProgressView progressView) {
+    FileController(Connection connection) {
         JSONObject ftpFileInto = connection.getFileServerInfo();
         fileManager = new FileManager(ftpFileInto);
         fileManager.parseIgnoredFiles(connection.getIgnoredFilesInfo());
         fileManager.setRemoteHashInfo(connection.getFullHashInfo());
         defaultDir = DEFAULT_DIRECTORY;
-        this.progressView = progressView;
     }
 
-    boolean checkFiles() {
+    public boolean checkFiles() {
         return fileManager.checkFiles();
     }
 

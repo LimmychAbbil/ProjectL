@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import net.lim.LLauncher;
 import net.lim.controller.tasks.BackgroundReceiverTask;
 import net.lim.controller.tasks.DownloadFilesService;
+import net.lim.controller.tasks.FileCheckerService;
 import net.lim.controller.tasks.LoginService;
 import net.lim.model.FileManager;
 import net.lim.model.ServerInfo;
@@ -58,6 +59,7 @@ public class LauncherController {
     private BasicPane basicView;
     private DownloadFilesService downloadService;
     private LoginService loginService;
+    private FileCheckerService fileCheckerService;
 
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
@@ -73,8 +75,9 @@ public class LauncherController {
             throw new IllegalStateException("Not ready");
         }
         establishConnection();
-        this.downloadService = new DownloadFilesService(fileController);
         this.loginService = new LoginService(connection);
+        this.fileCheckerService = new FileCheckerService(fileController);
+        this.downloadService = new DownloadFilesService(fileController);
     }
 
     private void establishConnection() {
@@ -205,10 +208,10 @@ public class LauncherController {
     }
 
     private void startFileChecking(String userName) {
-        Task<Boolean> fileCheckTask = createFileCheckTask();
-        progressView.getTextMessageProperty().bind(fileCheckTask.messageProperty());
-        fileCheckTask.setOnSucceeded(e -> {
-            boolean filesOK = fileCheckTask.getValue();
+        fileCheckerService.start();
+        progressView.getTextMessageProperty().bind(fileCheckerService.messageProperty());
+        fileCheckerService.setOnSucceeded(e -> {
+            boolean filesOK = fileCheckerService.getValue();
             if (filesOK) {
                 progressView.getTextMessageProperty().unbind();
                 progressView.getTextMessageProperty().setValue("Launching");
@@ -222,7 +225,6 @@ public class LauncherController {
                 createDownloadTask(userName);
             }
         });
-        startTask(fileCheckTask);
     }
 
     private String getServerURL() {
@@ -333,18 +335,6 @@ public class LauncherController {
         });
     }
 
-    private Task<Boolean> createFileCheckTask() {
-
-        return new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                updateMessage("Check files");
-                if (Settings.getInstance().isOfflineMode()) return true;
-                return fileController.checkFiles();
-            }
-        };
-    }
-
     private void startTask(Task<?> task) {
         Thread taskThread = new Thread(task);
         taskThread.setDaemon(true);
@@ -379,7 +369,7 @@ public class LauncherController {
     }
 
     private void initFileController(Connection connection) {
-        this.fileController = new FileController(connection, progressView);
+        this.fileController = new FileController(connection);
     }
 
     public void registrationButtonPressed(RegistrationPane registrationPane) {
