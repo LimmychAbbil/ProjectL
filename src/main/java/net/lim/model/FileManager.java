@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 //TODO folders are not released.
 public class FileManager {
@@ -29,6 +30,7 @@ public class FileManager {
     private JSONObject remoteHashInfo;
     private int progressCounter;
     private FTPClient ftpClient;
+    private JSONObject localHashInfo;
 
     public FileManager(JSONObject serverInfo) {
         this.ftpHostURL = (String) serverInfo.get("host");
@@ -58,22 +60,28 @@ public class FileManager {
         ignoredFiles = new ArrayList<>(ignoredFilesList);
     }
 
+    @Deprecated
     public boolean checkFiles() {
-        JSONObject localHashInfo = getLocalFilesHash();
+        localHashInfo = readAllLocalFilesHash();
         if (localHashInfo.size() != remoteHashInfo.size()) {
             System.out.println("Size differ: " + localHashInfo.size() + " but expected " + remoteHashInfo.size());
-            printDiff(localHashInfo, remoteHashInfo);
+            printDiff();
             return false;
         }
         for (Object localFileNameObject : localHashInfo.keySet()) {
-            Object localFileHash = localHashInfo.get(localFileNameObject);
-            Object remoteFileHah = remoteHashInfo.get(localFileNameObject);
-            if (!localFileHash.equals(remoteFileHah)) {
-                System.out.println(localFileNameObject + " differ");
-                return false;
-            }
+            if (!checkFile(localFileNameObject)) return false;
         }
         return true;
+    }
+
+    public JSONObject getLocalHashInfo() {
+        return localHashInfo;
+    }
+
+    public boolean checkFile(Object localFileNameObject) {
+        Object localFileHash = localHashInfo.get(localFileNameObject);
+        Object remoteFileHash = remoteHashInfo.get(localFileNameObject);
+        return localFileHash.equals(remoteFileHash);
     }
 
     public List<String> getAllLocalFiles(Path file) {
@@ -188,22 +196,22 @@ public class FileManager {
         return remoteHashInfo.keySet();
     }
 
-    private void printDiff(JSONObject localHashInfo, JSONObject remoteHashInfo) {
+    public void printDiff() {
         if (localHashInfo.size() > remoteHashInfo.size()) {
             localHashInfo.keySet().stream().filter(key -> !remoteHashInfo.containsKey(key))
                     .forEach(o -> System.out.println(o + " is not allowed locally"));
         }
     }
 
-    private JSONObject getLocalFilesHash() {
-        JSONObject fileListHashes = new JSONObject();
+    public JSONObject readAllLocalFilesHash() {
+        localHashInfo = new JSONObject();
 
         List<String> allLocalFilePaths = getAllLocalFiles(filesDirectory);
         for (String fileName : allLocalFilePaths) {
             Path localFile = Paths.get(filesDirectory.toString(), fileName).toAbsolutePath();
-            fileListHashes.put(fileName, computeMD5ForFile(localFile));
+            localHashInfo.put(fileName, computeMD5ForFile(localFile));
         }
-        return fileListHashes;
+        return localHashInfo;
     }
 
     private String computeMD5ForFile(Path localFile) {

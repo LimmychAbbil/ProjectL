@@ -26,6 +26,7 @@ public class FileController {
         defaultDir = DEFAULT_DIRECTORY;
     }
 
+    @Deprecated
     public boolean checkFiles() {
         return fileManager.checkFiles();
     }
