@@ -3,9 +3,12 @@ package net.lim.controller.tasks;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import net.lim.controller.FileController;
+import net.lim.model.FileManager;
 import net.lim.model.Settings;
 import org.json.simple.JSONObject;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 
 public class FileCheckerService extends Service<Boolean> {
@@ -32,8 +35,9 @@ public class FileCheckerService extends Service<Boolean> {
                     Collection<String> remoteFiles = fileController.getFileNames();
                     Collection<String> localFiles = fileController.getFileManager().getAllLocalFiles(fileController.getFileManager().getFilesDirectory());
                     if (remoteFiles.size() != localFiles.size()) {
-                        //TODO print to console
-                        updateMessage("Size differ: " + localFiles.size() + " but expected " + remoteFiles.size());
+                        String errorMessage = "Size differ: " + localFiles.size() + " but expected " + remoteFiles.size();
+                        System.out.println(errorMessage);
+                        updateMessage(errorMessage);
 
                         localFiles.stream().filter(key -> !remoteFiles.contains(key))
                                 .forEach(o -> System.out.println(o + " is not allowed locally"));
@@ -43,11 +47,12 @@ public class FileCheckerService extends Service<Boolean> {
 
                     //TODO add progress here
                     try {
-                        JSONObject localHash = fileController.getFileManager().readAllLocalFilesHash();
+                        JSONObject localHash = readAllLocalFilesHash(localFiles, fileController.getFileManager().getFilesDirectory());
                         for (Object localFileNameObject : localHash.keySet()) {
                             if (!fileController.getFileManager().checkFile(localFileNameObject)) {
-                                //TODO print to console
-                                updateMessage(localFileNameObject + " is different");
+                                String errorMessage = localFileNameObject + " is different";
+                                System.out.println(errorMessage);
+                                updateMessage(errorMessage);
                                 return false;
                             }
                         }
@@ -57,6 +62,19 @@ public class FileCheckerService extends Service<Boolean> {
                 }
 
                 return true;
+            }
+
+            public JSONObject readAllLocalFilesHash(Collection<String> allLocalFiles, Path filesDirectory) {
+                JSONObject localHashInfo = new JSONObject();
+                int progressCounter = 0;
+
+                for (String fileName : allLocalFiles) {
+                    Path localFile = Paths.get(filesDirectory.toString(), fileName).toAbsolutePath();
+                    localHashInfo.put(fileName, FileManager.computeMD5ForFile(localFile));
+                    updateMessage("Checking files... " + progressCounter++ + "/" + allLocalFiles.size());
+                }
+                fileController.getFileManager().setLocalHashInfo(localHashInfo);
+                return localHashInfo;
             }
         };
     }

@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 //TODO folders are not released.
 public class FileManager {
@@ -203,7 +202,12 @@ public class FileManager {
         }
     }
 
-    public JSONObject readAllLocalFilesHash() {
+    public void setLocalHashInfo(JSONObject localHashInfo) {
+        this.localHashInfo = localHashInfo;
+    }
+
+    @Deprecated
+    private JSONObject readAllLocalFilesHash() {
         localHashInfo = new JSONObject();
 
         List<String> allLocalFilePaths = getAllLocalFiles(filesDirectory);
@@ -214,7 +218,7 @@ public class FileManager {
         return localHashInfo;
     }
 
-    private String computeMD5ForFile(Path localFile) {
+    public static String computeMD5ForFile(Path localFile) {
         try (InputStream is = new FileInputStream(localFile.toFile())) {
             return DigestUtils.md5Hex(is);
         } catch (IOException e) {
