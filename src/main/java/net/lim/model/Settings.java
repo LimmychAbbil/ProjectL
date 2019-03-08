@@ -1,23 +1,32 @@
 package net.lim.model;
 
-public class Settings {
-    private static Settings ourInstance = new Settings();
+import java.lang.management.ManagementFactory;
 
-    private String xms;
+public class Settings {
+    private static Settings instance = new Settings();
+
+    public static long MAX_RAM_MB_SIZE = (((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize()) / (1024 * 1024);
+
+    public static long DEFAULT_XMS_MB_SIZE = 3 * 1024; //3 GB
+
+    /**
+     * XMx property in Megabytes
+     */
+    private long xmx;
     private String filesDir;
     private boolean offlineMode = false;
     private String lserverURL;
 
     public static Settings getInstance() {
-        return ourInstance;
+        return instance;
     }
 
-    public String getXms() {
-        return xms;
+    public long getXmx() {
+        return xmx;
     }
 
-    public void setXms(String xms) {
-        this.xms = xms;
+    public void setXmx(long xmx) {
+        this.xmx = xmx;
     }
 
     public String getFilesDir() {

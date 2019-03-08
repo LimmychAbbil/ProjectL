@@ -81,8 +81,25 @@ public class SettingsPane extends GridPane {
     }
 
     private void initSlider() {
-        this.xmxSlider = new Slider(10, 20, 15);
-        xmxSlider.setBlockIncrement(1);
+        final long oneGBRamInMBs = 1 * 1024;
+        if (Settings.MAX_RAM_MB_SIZE <= Settings.DEFAULT_XMS_MB_SIZE) {
+            System.out.println("ACHKO");
+            this.xmxSlider = new Slider(oneGBRamInMBs, oneGBRamInMBs, oneGBRamInMBs);
+            xmxSlider.setDisable(true);
+        } else {
+            this.xmxSlider = new Slider(oneGBRamInMBs, Settings.MAX_RAM_MB_SIZE, Settings.DEFAULT_XMS_MB_SIZE);
+            this.xmxSlider.setMajorTickUnit(oneGBRamInMBs);
+            this.xmxSlider.setBlockIncrement(256);
+            this.xmxSlider.setShowTickLabels(true);
+            this.xmxSlider.setSnapToTicks(true);
+            this.xmxSlider.setShowTickMarks(true);
+        }
+
+        this.xmxSlider.focusedProperty().addListener(e -> {
+            if (!xmxSlider.isFocused()) {
+                Settings.getInstance().setXmx((long) xmxSlider.getValue());
+            }
+        });
     }
 
     private void addContent() {
