@@ -1,0 +1,6 @@
+Button {
+    -fx-background-radius: 18px;
+    -fx-background-color: lightgrey;
+    -fx-text-fill: black;
+    -fx-opacity: 0.95;
+}

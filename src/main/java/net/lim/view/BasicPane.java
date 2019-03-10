@@ -45,6 +45,7 @@ public class BasicPane extends Pane {
         initLoginPane();
         initFileCheckView();
         addContent();
+        addAllStyleSheets();
     }
 
     private void initSettingsPane() {
@@ -162,5 +163,9 @@ public class BasicPane extends Pane {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void addAllStyleSheets() {
+        this.getStylesheets().add("styles/lStyleButtons.css");
     }
 }
