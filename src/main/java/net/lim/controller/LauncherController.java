@@ -61,6 +61,8 @@ public class LauncherController {
     private LoginService loginService;
     private FileCheckerService fileCheckerService;
 
+    public static String token;
+
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
         this.primaryStage = primaryStage;
@@ -274,7 +276,7 @@ public class LauncherController {
             .append("--assetIndex 1.8 ")
             .append("--uuid 00000000-0000-0000-0000-000000000000 ")
             .append("--accessToken null ")
-            .append("--userProperties {} ")
+            .append("--userProperties {\"token\":[\"").append(token).append("\"]} ")
             .append("--userType mojang ")
             .append("--tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker ");
 

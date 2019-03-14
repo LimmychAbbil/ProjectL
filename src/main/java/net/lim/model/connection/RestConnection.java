@@ -1,5 +1,6 @@
 package net.lim.model.connection;
 
+import net.lim.controller.LauncherController;
 import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -34,6 +35,8 @@ public class RestConnection extends Connection {
             loginForm.param("userName", userName);
             loginForm.param("pass", password);
             Response response = client.target(url + "/login").request().post(Entity.form(loginForm));
+            LauncherController.token = (String) getJsonFromResponse(response).get("tokenHash");
+
             return response.getStatus() == Response.Status.OK.getStatusCode();
         } finally {
             if (client != null) {
