@@ -17,7 +17,7 @@ public class LLauncher extends Application {
     public final static double MIN_WIDTH = 600;
     public final static double MIN_HEIGHT = 400;
     public static final String PROGRAM_NAME = "LLauncher";
-    public static final String PROGRAM_VERSION = "0.04k";
+    public static final String PROGRAM_VERSION = "0.04l";
 
     private LauncherController controller;
 
@@ -42,7 +42,7 @@ public class LLauncher extends Application {
         primaryStage.show();
     }
 
-    private void addIcon(Stage primaryStage) throws FileNotFoundException {
+    private void addIcon(Stage primaryStage) {
         Image icon = new Image(this.getClass().getClassLoader().getResource("icon.ico").toString());
         primaryStage.getIcons().add(icon);
     }
