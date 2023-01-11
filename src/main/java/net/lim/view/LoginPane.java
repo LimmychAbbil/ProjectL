@@ -45,7 +45,7 @@ public class LoginPane extends HBox {
     }
 
     private void initRegistrationButton() {
-        registrationButton = new Button("Регистрация");
+        registrationButton = new Button("Sign up");
         registrationButton.setOnAction(e -> controller.registrationButtonPressed(registrationPane));
     }
 
@@ -63,7 +63,7 @@ public class LoginPane extends HBox {
     }
 
     private void initLoginButton() {
-        loginButton = new Button("Войти на сервер");
+        loginButton = new Button("Log in");
         loginButton.setOnAction(e -> controller.loginButtonPressed(userNameField.getText(), passwordField.getText()));
     }
 

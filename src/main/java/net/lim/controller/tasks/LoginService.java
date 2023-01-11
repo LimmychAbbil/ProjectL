@@ -9,7 +9,7 @@ import net.lim.model.connection.Connection;
  */
 public class LoginService extends Service<Boolean> {
 
-    private Connection connection;
+    private final Connection connection;
 
     private String userName;
     private String password;

@@ -13,7 +13,7 @@ import java.util.Collection;
 
 public class FileCheckerService extends Service<Boolean> {
 
-    private FileController fileController;
+    private final FileController fileController;
 
     public FileCheckerService(FileController fileController) {
         this.fileController = fileController;

@@ -5,7 +5,7 @@ import javafx.concurrent.Task;
 import net.lim.controller.FileController;
 
 public class DownloadFilesService extends Service<Void> {
-    private FileController fileController;
+    private final FileController fileController;
 
     public DownloadFilesService(FileController controller) {
         this.fileController = controller;

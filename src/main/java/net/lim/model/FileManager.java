@@ -85,7 +85,7 @@ public class FileManager {
 
     public List<String> getAllLocalFiles(Path file) {
         if (!Files.isDirectory(file)) {
-            throw new IllegalArgumentException("File " + file.toAbsolutePath().toString() + " should be directory");
+            throw new IllegalArgumentException("File " + file.toAbsolutePath() + " should be directory");
         }
         List<String> allFilePaths = new ArrayList<>();
         File[] files = file.toFile().listFiles();
@@ -94,8 +94,7 @@ public class FileManager {
                 if (!isDirIgnored(f.toPath())) {
                     allFilePaths.addAll(getAllLocalFiles(f.toPath()));
                 }
-            } else {
-                if (!isFileIgnored(f.toPath()))
+            } else if (!isFileIgnored(f.toPath())) {
                 allFilePaths.add("/" + (filesDirectory.relativize(f.toPath()).toString()).replaceAll("\\\\", "/"));
             }
         }
