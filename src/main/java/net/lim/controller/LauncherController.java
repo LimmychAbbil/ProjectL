@@ -45,6 +45,7 @@ import java.util.Properties;
  * Created by Limmy on 28.04.2018.
  */
 public class LauncherController {
+    public static final String DEFAULT_COMMAND = "notepad"; //fixme
     private Connection connection;
     private Stage primaryStage;
     private HostServices hostServices;
@@ -255,7 +256,9 @@ public class LauncherController {
             fullLaunchCommandBuilder.append("sh ").append(goToDirCommand).append(" ; ");
         }
 
-        fullLaunchCommandBuilder.append("java ");
+
+        fullLaunchCommandBuilder.append(connection.getServerLaunchCommand(selectedServer));
+        /*fullLaunchCommandBuilder.append("java ");
             if (Settings.getInstance().getXmx() != 0) {
                 fullLaunchCommandBuilder.append("-Xms").append(Settings.getInstance().getXmx()).append("m ");
             } else {
@@ -283,7 +286,7 @@ public class LauncherController {
         if (StringUtils.isNotEmpty(getServerURL())) {
             fullLaunchCommandBuilder.append("--server ").append(selectedServer.getIp()).append(" ");
             fullLaunchCommandBuilder.append(" --port ").append(selectedServer.getPort());
-        }
+        } */
 
         Process launch = Runtime.getRuntime().exec(fullLaunchCommandBuilder.toString());
 

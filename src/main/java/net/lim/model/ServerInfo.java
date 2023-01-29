@@ -24,6 +24,10 @@ public class ServerInfo {
         return (StringUtils.isEmpty(serverName)) ? "Unnamed server" + ip : serverName + "\n" + getDescription();
     }
 
+    public String getServerName() {
+        return serverName;
+    }
+
     public String getIp() {
         return ip;
     }

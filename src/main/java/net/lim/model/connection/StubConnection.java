@@ -1,5 +1,6 @@
 package net.lim.model.connection;
 
+import net.lim.model.ServerInfo;
 import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -57,5 +58,10 @@ public class StubConnection extends Connection {
     @Override
     public List<Advertisement> getAdvs() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getServerLaunchCommand(ServerInfo selectedServer) {
+        return "echo 'Stub connection is used'";
     }
 }

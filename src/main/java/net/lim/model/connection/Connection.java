@@ -1,5 +1,6 @@
 package net.lim.model.connection;
 
+import net.lim.model.ServerInfo;
 import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -42,4 +43,6 @@ public abstract class Connection {
                 return "Неизвестная ошибка";
         }
     }
+
+    public abstract String getServerLaunchCommand(ServerInfo selectedServer);
 }

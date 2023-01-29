@@ -7,6 +7,7 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Form;
 import jakarta.ws.rs.core.Response;
 import net.lim.controller.LauncherController;
+import net.lim.model.ServerInfo;
 import net.lim.model.adv.Advertisement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -181,9 +182,8 @@ public class RestConnection extends Connection {
     @Override
     public List<Advertisement> getAdvs() {
         List<Advertisement> list = new ArrayList<>();
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+
+        try (Client client = ClientBuilder.newClient();) {
             Response response = client.target(url + "/adv").request().get();
             JSONObject advJSON = getJsonFromResponse(response);
             JSONArray allAdvs = (JSONArray) advJSON.get("Advertisements");
@@ -205,13 +205,29 @@ public class RestConnection extends Connection {
 
                 list.add(advertisement);
             }
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
 
         return list;
+    }
+
+    @Override
+    public String getServerLaunchCommand(ServerInfo selectedServer) {
+        if (selectedServer == null) {
+            return LauncherController.DEFAULT_COMMAND;
+        }
+        try (Client client = ClientBuilder.newClient()) {
+
+            Response response = client.target(url + "/servers/startupCommand")
+                    .queryParam("serverName", selectedServer.getServerName()).request().get();
+
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                JSONObject commandJson = getJsonFromResponse(response);
+
+                return (String) commandJson.get(selectedServer.getServerName());
+            }
+
+            return ""; //TODO something instead of empty string to inform user about incorrect server configuration?
+        }
     }
 
     private JSONObject getJsonFromResponse(Response response) {
