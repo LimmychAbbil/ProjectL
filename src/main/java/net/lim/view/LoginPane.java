@@ -18,7 +18,7 @@ public class LoginPane extends HBox {
     private Button loginButton;
     private Button registrationButton;
     private RegistrationPane registrationPane;
-    private ChoiceBox serverListDropdown;
+    private ChoiceBox<Control> serverListDropdown;
 
     public LoginPane(LauncherController controller, RegistrationPane registrationPane) {
         this.controller = controller;
@@ -31,17 +31,16 @@ public class LoginPane extends HBox {
         initPasswordField();
         initLoginButton();
         initRegistrationButton();
-        initComboBox(controller.retrieveServerList());
+        initComboBox();
         addContent();
         setContentMargin();
     }
 
-    private void initComboBox(List<ServerInfo> serverList) {
+    private void initComboBox() {
         serverListDropdown = new ChoiceBox<>();
+        serverListDropdown.maxHeightProperty().setValue(16);
         serverListDropdown.setOnAction(e -> controller.serverSelected(serverListDropdown.getValue()));
-        serverListDropdown.getItems().add("Offline");
-        serverListDropdown.setValue("Offline");
-        fillServersList(serverList);
+        serverListDropdown.getItems().add(ServerInfo.OFFLINE);
     }
 
     private void initRegistrationButton() {
@@ -84,8 +83,10 @@ public class LoginPane extends HBox {
 
     private void fillServersList(List<ServerInfo> serverList) {
         if (serverList.size() > 0) {
-            serverListDropdown.getItems().add(new Separator());
-            serverListDropdown.getItems().addAll(serverList);
+            serverListDropdown.getItems().addAll(0, serverList);
+            serverListDropdown.getItems().add(serverList.size(), new Separator());
         }
+
+        serverListDropdown.setValue(ServerInfo.OFFLINE);
     }
 }

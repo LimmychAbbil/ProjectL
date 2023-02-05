@@ -162,8 +162,8 @@ public class LauncherController {
     }
 
     private void deMaximizeStage(Stage stage) {
-        stage.setX(currentX);
-        stage.setY(currentY);
+        stage.setX(Double.isNaN(currentX) ? 0.0 : currentX);
+        stage.setY(Double.isNaN(currentY) ? 0.0 : currentY);
         stage.setWidth(getDefaultWidth());
         stage.setHeight(getDefaultHeight());
     }
@@ -181,16 +181,18 @@ public class LauncherController {
     public double getDefaultWidth() {
         double maxWidth = Screen.getPrimary().getBounds().getWidth();
         double defaultWidth = 0.6 * maxWidth;
-        return maxWidth >= LLauncher.MIN_WIDTH ? defaultWidth : LLauncher.MIN_WIDTH;
+        return Math.max(defaultWidth, LLauncher.MIN_WIDTH);
     }
 
     public double getDefaultHeight() {
         double maxHeight = Screen.getPrimary().getBounds().getHeight();
         double defaultHeight = 0.6 * maxHeight;
-        return defaultHeight >= LLauncher.MIN_HEIGHT ? defaultHeight : LLauncher.MIN_HEIGHT;
+        return Math.max(defaultHeight, LLauncher.MIN_HEIGHT);
     }
 
     private void maximizeStage(Stage stage) {
+        currentX = stage.getX();
+        currentY = stage.getY();
         stage.setX(0.0);
         stage.setY(0.0);
         stage.setWidth(Screen.getPrimary().getBounds().getWidth());

@@ -1,8 +1,11 @@
 package net.lim.model;
 
+import javafx.scene.control.Control;
 import org.apache.commons.lang3.StringUtils;
 
-public class ServerInfo {
+public class ServerInfo extends Control {
+    public final static ServerInfo OFFLINE = new ServerInfo("Offline", "", 0);
+
     private String serverName;
     private String description;
     private String ip;
@@ -21,7 +24,18 @@ public class ServerInfo {
 
     @Override
     public String toString() {
-        return (StringUtils.isEmpty(serverName)) ? "Unnamed server" + ip : serverName + "\n" + getDescription();
+        StringBuilder builder = new StringBuilder();
+        if (StringUtils.isEmpty(serverName)) {
+            builder.append("Unnamed server: ").append(ip);
+        } else {
+            builder.append(serverName);
+        }
+
+        if (!StringUtils.isEmpty(description)) {
+            builder.append("\n").append(description);
+        }
+
+        return builder.toString();
     }
 
     public String getServerName() {
