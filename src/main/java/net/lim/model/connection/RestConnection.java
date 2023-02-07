@@ -212,7 +212,7 @@ public class RestConnection extends Connection {
 
     @Override
     public String getServerLaunchCommand(ServerInfo selectedServer) {
-        if (selectedServer == null) {
+        if (selectedServer == null || selectedServer == ServerInfo.OFFLINE) {
             return LauncherController.DEFAULT_COMMAND;
         }
         try (Client client = ClientBuilder.newClient()) {

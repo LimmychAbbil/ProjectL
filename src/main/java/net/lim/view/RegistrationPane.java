@@ -49,19 +49,19 @@ public class RegistrationPane extends GridPane {
         password.setPromptText("Your Password");
         passwordConfirmation = new PasswordField();
         passwordConfirmation.setPromptText("Confirm password");
-        rules = new Hyperlink("Я прочитал правила");
+        rules = new Hyperlink("Accept the rules");
         rules.setOnMouseClicked(e -> controller.rulesClicked());
         rulesConfirmation = new CheckBox();
-        rulesConfirmation.setAccessibleText("Ссылка на правила");
+        rulesConfirmation.setAccessibleText("Link to the rules page");
 
         errorMessage = new Label();
         errorMessage.setStyle("-fx-text-fill: red; -fx-font-size: 12");
 
 
-        sendButton = new Button("Зарегистрироваться");
+        sendButton = new Button("Submit");
         sendButton.setOnMouseClicked(e -> controller.sendRegistration(this));
 
-        cancelButton = new Button("Отмена");
+        cancelButton = new Button("Cancel");
         cancelButton.setOnMouseClicked(e -> controller.cancelRegistration(this));
     }
 

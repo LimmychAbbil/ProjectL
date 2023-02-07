@@ -355,7 +355,7 @@ public class LauncherController {
 
     private void createLoginTask(String userName, String password) {
         loginService.start(userName, password);
-
+        progressView.getTextMessageProperty().bind(loginService.messageProperty());
         loginService.setOnSucceeded(e -> {
                     boolean loginSuccess = loginService.getValue();
 
