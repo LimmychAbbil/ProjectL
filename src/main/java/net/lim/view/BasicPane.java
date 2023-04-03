@@ -9,7 +9,6 @@ import net.lim.controller.LauncherController;
 import net.lim.controller.tasks.BackgroundReceiverTask;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -30,12 +29,12 @@ public class BasicPane extends Pane {
     private final static URL offlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/offline.png");
     private final static URL onlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/online.png");
 
-    public BasicPane(LauncherController controller) throws IOException {
+    public BasicPane(LauncherController controller) {
         this.controller = controller;
         init();
     }
 
-    public void init() throws IOException {
+    public void init() {
         addBackgroundImage();
         initHeaderPane();
         initNewsPane();
@@ -49,10 +48,11 @@ public class BasicPane extends Pane {
     }
 
     private void initSettingsPane() {
-        this.settingsPane = new SettingsPane(controller);
-        settingsPane.setVisible(false);
-        settingsPane.layoutYProperty().bind(lServerConnectionStatusIconView.yProperty().add(32));
-        settingsPane.layoutXProperty().bind(this.widthProperty().add(settingsPane.widthProperty().multiply(-1)));
+        this.settingsPane = controller.getOrCreateSettingController().getOrCreateSettingsPane();
+
+        this.settingsPane.setVisible(false);
+        this.settingsPane.layoutYProperty().bind(lServerConnectionStatusIconView.yProperty().add(32));
+        this.settingsPane.layoutXProperty().bind(this.widthProperty().add(settingsPane.widthProperty().multiply(-1)));
     }
 
     private void postInitAfterConnect() {
@@ -120,7 +120,7 @@ public class BasicPane extends Pane {
         newsPane.prefHeightProperty().bind(this.heightProperty().divide(1.5));
     }
 
-    private void initHeaderPane() throws IOException {
+    private void initHeaderPane() {
         headerPane = new HeaderPane(controller);
 
         headerPane.minWidthProperty().bind(this.widthProperty());

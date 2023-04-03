@@ -3,7 +3,6 @@ package net.lim.controller;
 import net.lim.model.FileManager;
 import net.lim.model.Settings;
 import net.lim.model.connection.Connection;
-import net.lim.view.ProgressView;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 
@@ -14,7 +13,7 @@ import java.util.Collection;
 
 import static net.lim.model.FileManager.DEFAULT_DIRECTORY;
 
-public class FileController {
+public class FileController implements Controller {
     private FileManager fileManager;
     private String defaultDir;
 
@@ -24,6 +23,11 @@ public class FileController {
         fileManager.parseIgnoredFiles(connection.getIgnoredFilesInfo());
         fileManager.setRemoteHashInfo(connection.getFullHashInfo());
         defaultDir = DEFAULT_DIRECTORY;
+    }
+
+    @Override
+    public void init() {
+
     }
 
     @Deprecated

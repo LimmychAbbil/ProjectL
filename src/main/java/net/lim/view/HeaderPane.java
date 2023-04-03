@@ -20,12 +20,13 @@ public class HeaderPane extends Pane {
     private LauncherController controller;
     private Label headerText;
     private ImageView minimizeButton, maximizeButton, exitButton;
-    public HeaderPane(LauncherController controller) throws IOException{
+
+    public HeaderPane(LauncherController controller) {
         this.controller = controller;
         init();
     }
 
-    private void init() throws IOException {
+    private void init() {
         setHeaderColorAndSize();
         setDragAction();
         initHeaderText();
@@ -44,21 +45,21 @@ public class HeaderPane extends Pane {
         getChildren().addAll(headerText, minimizeButton, maximizeButton, exitButton);
     }
 
-    private void initCloseButton() throws IOException {
+    private void initCloseButton() {
         Image exitImage = new Image(this.getClass().getClassLoader().getResource("exit.png").toString());
         exitButton = initControlButton(exitImage, this.widthProperty());
 
         exitButton.setOnMouseClicked(event -> controller.closeButtonPressed());
     }
 
-    private void initMaximizeButton() throws IOException {
+    private void initMaximizeButton() {
         Image maximizeImage = new Image(this.getClass().getClassLoader().getResource("maximize.png").toString());
         maximizeButton = initControlButton(maximizeImage, exitButton.layoutXProperty());
 
         maximizeButton.setOnMouseClicked(event -> controller.maximizePressed());
     }
 
-    private void initMinimizeButton() throws IOException {
+    private void initMinimizeButton() {
         Image minimizeImage = new Image(this.getClass().getClassLoader().getResource("minimize.png").toString());
         minimizeButton = initControlButton(minimizeImage, maximizeButton.layoutXProperty());
 

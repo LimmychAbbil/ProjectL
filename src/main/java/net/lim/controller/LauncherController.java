@@ -44,7 +44,7 @@ import java.util.Properties;
 /**
  * Created by Limmy on 28.04.2018.
  */
-public class LauncherController {
+public class LauncherController implements Controller {
     public static final String DEFAULT_COMMAND = "notepad"; //fixme
     private Connection connection;
     private Stage primaryStage;
@@ -64,6 +64,8 @@ public class LauncherController {
 
     public static String token;
 
+    private SettingsController settingsController;
+
     public LauncherController(Stage primaryStage, HostServices hostServices) {
         this.hostServices = hostServices;
         this.primaryStage = primaryStage;
@@ -73,10 +75,9 @@ public class LauncherController {
     /**
      * @throws IllegalStateException if called before view is ready
      */
+    @Override
     public void init() {
-        if (primaryStage == null || basicView == null) {
-            throw new IllegalStateException("Not ready");
-        }
+        getOrCreateBasicView();
         establishConnection();
         this.loginService = new LoginService(connection);
         this.fileCheckerService = new FileCheckerService(fileController);
@@ -84,7 +85,7 @@ public class LauncherController {
     }
 
     private void establishConnection() {
-        String launchServerURL = null;
+        String launchServerURL;
         if (Settings.getInstance().getLserverURL() == null) {
             //can't be null here
             launchServerURL = readServerURLFromConfigFile();
@@ -389,25 +390,25 @@ public class LauncherController {
     }
 
     public void rulesClicked() {
-        System.out.println("Открыть ссылку на правила");
+        System.out.println("Open rules"); //TODO
     }
 
     public void sendRegistration(RegistrationPane registrationPane) {
         if (!LUtils.isNotValidUserName(registrationPane.getUserName().getText())) {
-            registrationPane.getErrorMessage().setText("Неправильное имя пользователя");
+            registrationPane.getErrorMessage().setText("Incorrect username");
             return;
         }
         if (registrationPane.getPassword().getText().isEmpty()) {
-            registrationPane.getErrorMessage().setText("Пустой пароль");
+            registrationPane.getErrorMessage().setText("Empty password");
             return;
         }
         if (!registrationPane.getPassword().getText().equals(registrationPane.getPasswordConfirmation().getText())) {
-            registrationPane.getErrorMessage().setText("Пароли не совпадают");
+            registrationPane.getErrorMessage().setText("Passwords do not match");
             return;
         }
 
         if (!registrationPane.getRulesConfirmation().isSelected()) {
-            registrationPane.getErrorMessage().setText("Подтвердите согласие с правилами");
+            registrationPane.getErrorMessage().setText("Need to accept the rules");
             return;
         }
         try {
@@ -419,7 +420,7 @@ public class LauncherController {
                 registrationPane.getErrorMessage().setText(Connection.getErrorMessage(responseCode));
             }
         } catch (Exception e) {
-            registrationPane.getErrorMessage().setText("Не удалось зарегистрироваться: " + e.getMessage());
+            registrationPane.getErrorMessage().setText("Can't sign up: " + e.getMessage());
         }
 
     }
@@ -480,7 +481,7 @@ public class LauncherController {
     }
 
     public void reconnectButtonPressed() {
-        if (connection == null || !basicView.getConnectionStatus()
+        if (connection == null || !connection.validateConnection()
                 || connection instanceof StubConnection || Settings.getInstance().getLserverURL() != null) {
             establishConnection();
             this.downloadService = new DownloadFilesService(fileController);
@@ -488,10 +489,19 @@ public class LauncherController {
         }
     }
 
-    public void defaultDirectorySelected(String text) {
-        Settings.getInstance().setFilesDir(text);
-        if (fileController != null) {
-            fileController.updateDirectory();
+    public SettingsController getOrCreateSettingController() {
+        if (settingsController == null) {
+            settingsController = new SettingsController(this, fileController);
         }
+
+
+        return settingsController;
+    }
+
+    public BasicPane getOrCreateBasicView() {
+        if (basicView == null) {
+            this.basicView = new BasicPane(this);
+        }
+        return basicView;
     }
 }

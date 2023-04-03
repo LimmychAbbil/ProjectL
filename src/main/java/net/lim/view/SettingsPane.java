@@ -10,7 +10,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
-import net.lim.controller.LauncherController;
+import net.lim.controller.SettingsController;
 import net.lim.model.FileManager;
 import net.lim.model.Settings;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 
 public class SettingsPane extends GridPane {
-    private LauncherController controller;
+    private final SettingsController controller;
     private Slider xmxSlider;
     private CheckBox offlineModeCheckBox;
     private CheckBox useCustomDirectory;
@@ -26,7 +26,7 @@ public class SettingsPane extends GridPane {
     private TextField serverURL;
     private Button reconnect;
 
-    public SettingsPane(LauncherController controller) {
+    public SettingsPane(SettingsController controller) {
         this.controller = controller;
         init();
     }
@@ -43,7 +43,7 @@ public class SettingsPane extends GridPane {
 
     private void initReconnectButton() {
         this.reconnect = new Button("Reconnect");
-        this.reconnect.setOnMouseClicked(e -> controller.reconnectButtonPressed());
+        this.reconnect.setOnMouseClicked(e -> controller.getLauncherController().reconnectButtonPressed());
     }
 
     private void initServerURL() {
@@ -76,14 +76,13 @@ public class SettingsPane extends GridPane {
         this.offlineModeCheckBox.setOnMouseClicked(e -> {
             Settings.getInstance().setOfflineMode(offlineModeCheckBox.isSelected());
             //reconnect
-            controller.reconnectButtonPressed();
+            controller.getLauncherController().reconnectButtonPressed();
         });
     }
 
     private void initSlider() {
         final long oneGBRamInMBs = 1 * 1024;
         if (Settings.MAX_RAM_MB_SIZE <= Settings.DEFAULT_XMS_MB_SIZE) {
-            System.out.println("ACHKO");
             this.xmxSlider = new Slider(oneGBRamInMBs, oneGBRamInMBs, oneGBRamInMBs);
             xmxSlider.setDisable(true);
         } else {
