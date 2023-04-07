@@ -473,6 +473,7 @@ public class LauncherController implements Controller {
         if (connection != null) {
             AdvertisementReceiver advertisementReceiver = new RestAdvertisementReceiver(connection);
             List<Advertisement> allAds = advertisementReceiver.receiveAdvertisements();
+            newsPane.clearTextFlow();
 
             for (Advertisement ad : allAds) {
                 newsPane.putNewToArea(ad);
@@ -481,7 +482,9 @@ public class LauncherController implements Controller {
     }
 
     public void reconnectButtonPressed() {
-        if (connection == null || !connection.validateConnection()
+        if (Settings.getInstance().isOfflineMode()) {
+            connection = null;
+        } else if (connection == null || !connection.validateConnection()
                 || connection instanceof StubConnection || Settings.getInstance().getLserverURL() != null) {
             establishConnection();
             this.downloadService = new DownloadFilesService(fileController);

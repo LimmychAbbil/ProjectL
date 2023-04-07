@@ -10,6 +10,10 @@
         <jersey.version>3.1.0</jersey.version>
     </properties>
 
+    <groupId>net.lim</groupId>
+    <artifactId>LLauncher</artifactId>
+    <version>0.05e</version>
+
     <build>
         <finalName>LLauncher</finalName>
         <plugins>
@@ -55,10 +59,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <groupId>net.lim</groupId>
-    <artifactId>LLauncher</artifactId>
-    <version>0.05d</version>
 
     <dependencies>
         <dependency>

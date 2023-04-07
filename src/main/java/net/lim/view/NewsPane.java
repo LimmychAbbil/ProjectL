@@ -58,6 +58,12 @@ public class NewsPane extends Pane {
         controller.fillNewsFlow(this);
     }
 
+    public void clearTextFlow() {
+        if (newsTextFlow != null) {
+            newsTextFlow.getChildren().clear();
+        }
+    }
+
     public void putNewToArea(Advertisement advertisement) {
         Text header = new Text(advertisement.getHeader() + "\n");
         header.setStyle("-fx-font-weight:bold; -fx-fill: darkgoldenrod");
