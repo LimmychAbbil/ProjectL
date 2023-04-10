@@ -1,9 +1,11 @@
 package net.lim.model.connection;
 
+import com.sun.javafx.util.Logging;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Form;
 import jakarta.ws.rs.core.Response;
 import net.lim.controller.LauncherController;
@@ -17,6 +19,7 @@ import org.json.simple.parser.ParseException;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,15 +121,23 @@ public class RestConnection extends Connection {
 
     @Override
     public boolean validateConnection() {
-        Client client = null;
+        URI uri;
         try {
-            client = ClientBuilder.newClient();
-            Response response = client.target(url).request().get();
+            uri = new URI(url);
+
+        } catch (URISyntaxException e) {
+            System.err.println("Can't validate connection, invalid URI: " + e.getMessage());
+            return false;
+        }
+        if (!uri.isAbsolute()) {
+            return false;
+        }
+        try (Client client = ClientBuilder.newClient()) {
+            Response response = client.target(uri).request().get();
             return response.getStatus() == Response.Status.OK.getStatusCode();
-        } finally {
-             if (client != null) {
-                 client.close();
-             }
+        } catch (Exception e) {
+            System.err.println("Can't establish a connection: " + e.getMessage());
+            return false;
         }
     }
 

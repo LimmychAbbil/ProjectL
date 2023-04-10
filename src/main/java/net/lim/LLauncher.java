@@ -14,7 +14,7 @@ public class LLauncher extends Application {
     public final static double MIN_WIDTH = 600;
     public final static double MIN_HEIGHT = 400;
     public static final String PROGRAM_NAME = "LLauncher";
-    public static final String PROGRAM_VERSION = "0.05e";
+    public static final String PROGRAM_VERSION = "0.05f";
 
     private LauncherController controller;
 
@@ -22,7 +22,7 @@ public class LLauncher extends Application {
         Application.launch();
     }
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         controller = new LauncherController(primaryStage, getHostServices());
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.setTitle("LLauncher");

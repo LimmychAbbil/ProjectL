@@ -7,12 +7,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <javafx11.version>11.0.2</javafx11.version>
-        <jersey.version>3.1.0</jersey.version>
+        <jersey.version>3.1.1</jersey.version>
     </properties>
 
     <groupId>net.lim</groupId>
     <artifactId>LLauncher</artifactId>
-    <version>0.05e</version>
+    <version>0.05f</version>
 
     <build>
         <finalName>LLauncher</finalName>
