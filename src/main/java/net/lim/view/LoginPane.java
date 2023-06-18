@@ -41,6 +41,7 @@ public class LoginPane extends HBox {
         serverListDropdown.maxHeightProperty().setValue(16);
         serverListDropdown.setOnAction(e -> controller.serverSelected(serverListDropdown.getValue()));
         serverListDropdown.getItems().add(ServerInfo.OFFLINE);
+        serverListDropdown.setValue(ServerInfo.OFFLINE);
     }
 
     private void initRegistrationButton() {

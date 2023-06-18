@@ -1,11 +1,9 @@
 package net.lim.model.connection;
 
-import com.sun.javafx.util.Logging;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Form;
 import jakarta.ws.rs.core.Response;
 import net.lim.controller.LauncherController;
@@ -15,7 +13,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -119,6 +116,7 @@ public class RestConnection extends Connection {
         }
     }
 
+    //TODO timeout
     @Override
     public boolean validateConnection() {
         URI uri;

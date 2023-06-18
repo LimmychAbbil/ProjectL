@@ -5,7 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import net.lim.controller.LauncherController;
+import net.lim.controller.StageController;
 import net.lim.controller.tasks.BackgroundReceiverTask;
 
 import java.io.FileNotFoundException;
@@ -17,7 +17,7 @@ import java.net.URL;
 public class BasicPane extends Pane {
     private final static String DEFAULT_BACKGROUND_IMAGE_NAME = "background.jpg";
 
-    private final LauncherController controller;
+    private final StageController controller;
     private HeaderPane headerPane;
     private NewsPane newsPane;
     private LoginPane loginPane;
@@ -29,7 +29,7 @@ public class BasicPane extends Pane {
     private final static URL offlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/offline.png");
     private final static URL onlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/online.png");
 
-    public BasicPane(LauncherController controller) {
+    public BasicPane(StageController controller) {
         this.controller = controller;
         init();
     }
@@ -48,7 +48,7 @@ public class BasicPane extends Pane {
     }
 
     private void initSettingsPane() {
-        this.settingsPane = controller.getOrCreateSettingController().getOrCreateSettingsPane();
+        this.settingsPane = controller.getLauncherController().getOrCreateSettingController().getOrCreateSettingsPane();
 
         this.settingsPane.setVisible(false);
         this.settingsPane.layoutYProperty().bind(lServerConnectionStatusIconView.yProperty().add(32));
@@ -103,18 +103,18 @@ public class BasicPane extends Pane {
         progressView.setOpacity(0.9);
         progressView.setVisible(false);
 
-        controller.setProgressView(progressView);
+        controller.getLauncherController().setProgressView(progressView);
     }
 
     private void initRegistrationPane() {
-        registrationPane = new RegistrationPane(controller);
+        registrationPane = new RegistrationPane(controller.getLauncherController());
         registrationPane.setVisible(false);
         registrationPane.layoutYProperty().bind(settingsPane.layoutYProperty().add(settingsPane.heightProperty()).add(16));
         registrationPane.layoutXProperty().bind(this.widthProperty().add(registrationPane.widthProperty().multiply(-1)));
     }
 
     private void initNewsPane() {
-        newsPane = new NewsPane(controller);
+        newsPane = new NewsPane(controller.getLauncherController());
 
         newsPane.prefWidthProperty().bind(this.widthProperty().divide(3));
         newsPane.prefHeightProperty().bind(this.heightProperty().divide(1.5));
@@ -132,7 +132,7 @@ public class BasicPane extends Pane {
     }
 
     private void initLoginPane() {
-        loginPane = new LoginPane(controller, registrationPane);
+        loginPane = new LoginPane(controller.getLauncherController(), registrationPane);
 
         loginPane.minWidthProperty().bind(this.widthProperty());
         loginPane.maxWidthProperty().bind(this.widthProperty());
@@ -140,7 +140,7 @@ public class BasicPane extends Pane {
     }
 
     private void addBackgroundImage() {
-        BackgroundReceiverTask backgroundImageTask = controller.createAndStartBackgroundReceiverTask();
+        BackgroundReceiverTask backgroundImageTask = controller.getLauncherController().createAndStartBackgroundReceiverTask();
         backgroundImageTask.setOnSucceeded(e -> {
             Image backgroundImage = backgroundImageTask.getValue();
             if (backgroundImage == null) {

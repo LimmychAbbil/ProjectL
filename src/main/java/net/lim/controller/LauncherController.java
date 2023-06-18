@@ -1,12 +1,8 @@
 package net.lim.controller;
 
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 import net.lim.LLauncher;
 import net.lim.controller.tasks.BackgroundReceiverTask;
 import net.lim.controller.tasks.DownloadFilesService;
@@ -22,7 +18,6 @@ import net.lim.model.connection.Connection;
 import net.lim.model.connection.RestConnection;
 import net.lim.model.connection.StubConnection;
 import net.lim.model.service.LUtils;
-import net.lim.view.BasicPane;
 import net.lim.view.NewsPane;
 import net.lim.view.ProgressView;
 import net.lim.view.RegistrationPane;
@@ -46,18 +41,11 @@ import java.util.Properties;
  */
 public class LauncherController implements Controller {
     public static final String DEFAULT_COMMAND = "notepad"; //fixme
+    private final StageController stageController;
     private Connection connection;
-    private Stage primaryStage;
-    private HostServices hostServices;
-    private static double currentX;
-    private static double currentY;
-    private double dragOffsetX;
-    private double dragOffsetY;
-    private boolean isMaximized = false;
     private FileController fileController;
     private ProgressView progressView;
     private ServerInfo selectedServer;
-    private BasicPane basicView;
     private DownloadFilesService downloadService;
     private LoginService loginService;
     private FileCheckerService fileCheckerService;
@@ -66,18 +54,12 @@ public class LauncherController implements Controller {
 
     private SettingsController settingsController;
 
-    public LauncherController(Stage primaryStage, HostServices hostServices) {
-        this.hostServices = hostServices;
-        this.primaryStage = primaryStage;
-        initializeDefaultXAndY(primaryStage);
+    public LauncherController(StageController stageController) {
+        this.stageController = stageController;
     }
 
-    /**
-     * @throws IllegalStateException if called before view is ready
-     */
     @Override
     public void init() {
-        getOrCreateBasicView();
         establishConnection();
         this.loginService = new LoginService(connection);
         this.fileCheckerService = new FileCheckerService(fileController);
@@ -118,9 +100,7 @@ public class LauncherController implements Controller {
             errorMessage = e.getMessage();
             System.err.println("Connection attempt failed: " + e.getMessage());
         }
-        if (basicView != null) {
-            basicView.setConnectionStatus(connectionOK, errorMessage);
-        }
+        stageController.getOrCreateBasicView().setConnectionStatus(connectionOK, errorMessage);
     }
 
     private String readServerURLFromConfigFile() {
@@ -142,70 +122,7 @@ public class LauncherController implements Controller {
     }
 
     public void linkPressed(URL url) {
-        hostServices.showDocument(url.toString());
-    }
-
-    public void handleMouseDragged(MouseEvent e) {
-        currentX = e.getScreenX() - this.dragOffsetX;
-        currentY = e.getScreenY() - this.dragOffsetY;
-        primaryStage.setX(currentX);
-        primaryStage.setY(currentY);
-    }
-
-    public void handleMousePress(MouseEvent e) {
-        this.dragOffsetX = e.getScreenX() - primaryStage.getX();
-        this.dragOffsetY = e.getScreenY() - primaryStage.getY();
-    }
-
-    private void initializeDefaultXAndY(Stage primaryStage) {
-        currentX = primaryStage.getX();
-        currentY = primaryStage.getY();
-    }
-
-    private void deMaximizeStage(Stage stage) {
-        stage.setX(Double.isNaN(currentX) ? 0.0 : currentX);
-        stage.setY(Double.isNaN(currentY) ? 0.0 : currentY);
-        stage.setWidth(getDefaultWidth());
-        stage.setHeight(getDefaultHeight());
-    }
-
-    public void maximizePressed() {
-        if (!isMaximized) {
-            maximizeStage(primaryStage);
-            isMaximized = true;
-        } else {
-            deMaximizeStage(primaryStage);
-            isMaximized = false;
-        }
-    }
-
-    public double getDefaultWidth() {
-        double maxWidth = Screen.getPrimary().getBounds().getWidth();
-        double defaultWidth = 0.6 * maxWidth;
-        return Math.max(defaultWidth, LLauncher.MIN_WIDTH);
-    }
-
-    public double getDefaultHeight() {
-        double maxHeight = Screen.getPrimary().getBounds().getHeight();
-        double defaultHeight = 0.6 * maxHeight;
-        return Math.max(defaultHeight, LLauncher.MIN_HEIGHT);
-    }
-
-    private void maximizeStage(Stage stage) {
-        currentX = stage.getX();
-        currentY = stage.getY();
-        stage.setX(0.0);
-        stage.setY(0.0);
-        stage.setWidth(Screen.getPrimary().getBounds().getWidth());
-        stage.setHeight(Screen.getPrimary().getBounds().getHeight());
-    }
-
-    public void closeButtonPressed() {
-        Platform.exit();
-    }
-
-    public void minimizedPressed() {
-        primaryStage.setIconified(true);
+        LLauncher.getFXHostServices().showDocument(url.toString());
     }
 
     public void loginButtonPressed(String userName, String password) {
@@ -459,10 +376,6 @@ public class LauncherController implements Controller {
         }
     }
 
-    public void setBasicView(BasicPane basicView) {
-        this.basicView = basicView;
-    }
-
     public BackgroundReceiverTask createAndStartBackgroundReceiverTask() {
         BackgroundReceiverTask readServerImageTask = new BackgroundReceiverTask(connection, fileController);
         startTask(readServerImageTask);
@@ -499,12 +412,5 @@ public class LauncherController implements Controller {
 
 
         return settingsController;
-    }
-
-    public BasicPane getOrCreateBasicView() {
-        if (basicView == null) {
-            this.basicView = new BasicPane(this);
-        }
-        return basicView;
     }
 }

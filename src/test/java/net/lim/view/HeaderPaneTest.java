@@ -6,7 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.lim.LLauncher;
-import net.lim.controller.LauncherController;
+import net.lim.controller.StageController;
 import net.lim.unit.BaseFXUnitTestClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,33 +18,14 @@ import java.util.List;
 public class HeaderPaneTest extends BaseFXUnitTestClass {
 
     private HeaderPane pane;
-    private LauncherController mockedController;
-    private MouseEvent mouseClickedEvent;
-    private MouseEvent mousePressedEvent;
-    private MouseEvent mouseDragEvent;
+    private StageController mockedController;
 
     @BeforeEach
     public void setUp() {
-        mockedController = Mockito.mock(LauncherController.class);
+        mockedController = Mockito.mock(StageController.class);
         pane = new HeaderPane(mockedController);
 
         //TODO create method to create fake mouse events by type
-        mouseClickedEvent =
-                new MouseEvent(MouseEvent.MOUSE_CLICKED, 0.0, 0.0,
-                        0.0, 0.0, MouseButton.PRIMARY, 1, false, false,
-                        false, false, false, false,
-                        false, true, false, false, null);
-
-        mousePressedEvent =
-                new MouseEvent(MouseEvent.MOUSE_PRESSED, 0.0, 0.0,
-                        0.0, 0.0, MouseButton.PRIMARY, 1, false, false,
-                        false, false, false, false,
-                        false, true, false, false, null);
-
-        mouseDragEvent = new MouseEvent(MouseEvent.MOUSE_DRAGGED, 0.0, 0.0,
-                0.0, 0.0, MouseButton.PRIMARY, 1, false, false,
-                false, false, false, false,
-                false, true, false, false, null);
     }
 
     @Test

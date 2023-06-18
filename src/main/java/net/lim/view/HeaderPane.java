@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import net.lim.LLauncher;
 import net.lim.controller.LauncherController;
+import net.lim.controller.StageController;
 
 import java.io.IOException;
 
@@ -17,11 +18,11 @@ import java.io.IOException;
  * Created by Limmy on 13.05.2018.
  */
 public class HeaderPane extends Pane {
-    private LauncherController controller;
+    private StageController controller;
     private Label headerText;
     private ImageView minimizeButton, maximizeButton, exitButton;
 
-    public HeaderPane(LauncherController controller) {
+    public HeaderPane(StageController controller) {
         this.controller = controller;
         init();
     }
