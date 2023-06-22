@@ -3,7 +3,6 @@ package net.lim.view;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.lim.LLauncher;
 import net.lim.controller.StageController;

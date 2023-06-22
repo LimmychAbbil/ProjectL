@@ -3,7 +3,7 @@ package net.lim.view;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import net.lim.controller.LauncherController;
+import net.lim.controller.LoginController;
 import net.lim.model.ServerInfo;
 import net.lim.unit.BaseFXUnitTestClass;
 import org.junit.jupiter.api.Assertions;
@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 public class LoginPaneTest extends BaseFXUnitTestClass {
 
     private LoginPane loginPane;
-    private LauncherController launcherController;
+    private LoginController loginControllerMock;
 
     @BeforeEach
     public void setUp() {
-        launcherController = Mockito.mock(LauncherController.class);
+        loginControllerMock = Mockito.mock(LoginController.class);
 
-        loginPane = new LoginPane(launcherController ,null);
+        loginPane = new LoginPane(loginControllerMock,null);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class LoginPaneTest extends BaseFXUnitTestClass {
         Assertions.assertEquals(1, paneList.size());
 
         paneList.get(0).fire();
-        Mockito.verify(launcherController).loginButtonPressed(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(loginControllerMock).loginButtonPressed(Mockito.anyString(), Mockito.anyString());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class LoginPaneTest extends BaseFXUnitTestClass {
         Assertions.assertEquals(1, paneList.size());
 
         paneList.get(0).fire();
-        Mockito.verify(launcherController).registrationButtonPressed(Mockito.any());
+        Mockito.verify(loginControllerMock).registrationButtonPressed(Mockito.any());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class LoginPaneTest extends BaseFXUnitTestClass {
     public void testServerSelectorAfterFillUp() {
         ServerInfo someServerInfo = new ServerInfo("someServer", "someIp", 1111);
         List<ServerInfo> serverInfoList = List.of(someServerInfo);
-        Mockito.when(launcherController.retrieveServerList()).thenReturn(serverInfoList);
+        Mockito.when(loginControllerMock.retrieveServerList()).thenReturn(serverInfoList);
 
         loginPane.updateServersList();
 

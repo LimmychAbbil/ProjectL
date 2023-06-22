@@ -7,34 +7,20 @@ import net.lim.LLauncher;
 import net.lim.controller.tasks.BackgroundReceiverTask;
 import net.lim.controller.tasks.DownloadFilesService;
 import net.lim.controller.tasks.FileCheckerService;
-import net.lim.controller.tasks.LoginService;
 import net.lim.model.FileManager;
-import net.lim.model.ServerInfo;
 import net.lim.model.Settings;
 import net.lim.model.adv.Advertisement;
 import net.lim.model.adv.AdvertisementReceiver;
 import net.lim.model.adv.RestAdvertisementReceiver;
 import net.lim.model.connection.Connection;
-import net.lim.model.connection.RestConnection;
-import net.lim.model.connection.StubConnection;
-import net.lim.model.service.LUtils;
 import net.lim.view.NewsPane;
-import net.lim.view.ProgressView;
-import net.lim.view.RegistrationPane;
 import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created by Limmy on 28.04.2018.
@@ -42,12 +28,9 @@ import java.util.Properties;
 public class LauncherController implements Controller {
     public static final String DEFAULT_COMMAND = "notepad"; //fixme
     private final StageController stageController;
-    private Connection connection;
     private FileController fileController;
-    private ProgressView progressView;
-    private ServerInfo selectedServer;
+
     private DownloadFilesService downloadService;
-    private LoginService loginService;
     private FileCheckerService fileCheckerService;
 
     public static String token;
@@ -60,61 +43,8 @@ public class LauncherController implements Controller {
 
     @Override
     public void init() {
-        establishConnection();
-        this.loginService = new LoginService(connection);
         this.fileCheckerService = new FileCheckerService(fileController);
         this.downloadService = new DownloadFilesService(fileController);
-    }
-
-    private void establishConnection() {
-        String launchServerURL;
-        if (Settings.getInstance().getLserverURL() == null) {
-            //can't be null here
-            launchServerURL = readServerURLFromConfigFile();
-        } else {
-            launchServerURL = Settings.getInstance().getLserverURL();
-        }
-        boolean connectionOK = false;
-        String errorMessage = null;
-        try {
-            if (!Settings.getInstance().isOfflineMode()) {
-                connection = new RestConnection(launchServerURL);
-                connectionOK = connection.validateConnection();
-                if (connectionOK) {
-                    boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
-                    if (!currentVersionSupported) {
-                        errorMessage = "Too old launcher version. Please upgrade";
-                        connectionOK = false;
-                    }
-
-                    initFileController(connection);
-                } else {
-                    errorMessage = "Can't establish connection";
-                }
-            } else {
-                //do nothing for offline mode
-                connection = new StubConnection();
-                connectionOK = true;
-            }
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
-            System.err.println("Connection attempt failed: " + e.getMessage());
-        }
-        stageController.getOrCreateBasicView().setConnectionStatus(connectionOK, errorMessage);
-    }
-
-    private String readServerURLFromConfigFile() {
-        try (InputStream reader = getClass().getClassLoader().getResourceAsStream("configuration/client.config")) {
-            Properties properties = new Properties();
-            properties.load(reader);
-            String serverIp = properties.getProperty("server.ip");
-            if (serverIp == null) {
-                throw new RuntimeException("Config file doesn't contain server.ip property");
-            }
-            return serverIp;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void hideNewsButtonPressed(ScrollPane pane) {
@@ -125,20 +55,15 @@ public class LauncherController implements Controller {
         LLauncher.getFXHostServices().showDocument(url.toString());
     }
 
-    public void loginButtonPressed(String userName, String password) {
-        progressView.setVisible(true);
-        createLoginTask(userName, password);
-    }
-
-    private void startFileChecking(String userName) {
+    protected void startFileChecking(String userName) {
         fileCheckerService.start();
-        progressView.getTextMessageProperty().bind(fileCheckerService.messageProperty());
+        stageController.getOrCreateBasicView().getProgressView().getTextMessageProperty().bind(fileCheckerService.messageProperty());
         fileCheckerService.setOnSucceeded(e -> {
             boolean filesOK = fileCheckerService.getValue();
             if (filesOK) {
-                progressView.getTextMessageProperty().unbind();
-                progressView.getTextMessageProperty().setValue("Launching");
-                startTask(createWaitingTask(1000));
+                stageController.getOrCreateBasicView().getProgressView().getTextMessageProperty().unbind();
+                stageController.getOrCreateBasicView().getProgressView().getTextMessageProperty().setValue("Launching");
+                startTask(stageController.createWaitingTask(1000));
                 try {
                     launchGame(userName);
                 } catch (Exception e1) {
@@ -148,13 +73,6 @@ public class LauncherController implements Controller {
                 createDownloadTask(userName);
             }
         });
-    }
-
-    private String getServerURL() {
-        if (selectedServer != null) {
-            return selectedServer.getIp() + ":" + selectedServer.getPort();
-        }
-        return ""; //offline connection
     }
 
     private void launchGame(String login) throws Exception {
@@ -177,7 +95,9 @@ public class LauncherController implements Controller {
         }
 
 
-        fullLaunchCommandBuilder.append(connection.getServerLaunchCommand(selectedServer));
+        fullLaunchCommandBuilder.append(
+                ConnectionController.getInstance().getConnection()
+                        .getServerLaunchCommand(stageController.getLoginController().getSelectedServer()));
         /*fullLaunchCommandBuilder.append("java ");
             if (Settings.getInstance().getXmx() != 0) {
                 fullLaunchCommandBuilder.append("-Xms").append(Settings.getInstance().getXmx()).append("m ");
@@ -256,135 +176,28 @@ public class LauncherController implements Controller {
         downloadService.reset();
         downloadService.start();
 
-        progressView.getTextMessageProperty().bind(downloadService.messageProperty());
+        stageController.getOrCreateBasicView().getProgressView().getTextMessageProperty().bind(downloadService.messageProperty());
         downloadService.setOnSucceeded(event -> {
             startFileChecking(userName);
         });
         downloadService.setOnFailed(e -> {
-            startTask(createWaitingTask(5 * 1000));
+            startTask(stageController.createWaitingTask(5 * 1000));
         });
     }
 
-    private void startTask(Task<?> task) {
-        Thread taskThread = new Thread(task);
-        taskThread.setDaemon(true);
-        taskThread.start();
-    }
-
-    private void createLoginTask(String userName, String password) {
-        loginService.start(userName, password);
-        progressView.getTextMessageProperty().bind(loginService.messageProperty());
-        loginService.setOnSucceeded(e -> {
-                    boolean loginSuccess = loginService.getValue();
-
-                    if (loginSuccess) {
-                        startFileChecking(userName);
-                    } else {
-                        startTask(createWaitingTask(5000));
-                    }
-                }
-        );
-    }
-
-    private Task<Void> createWaitingTask(long milis) {
-
-        return new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                Thread.sleep(milis);
-                progressView.setVisible(false);
-                return null;
-            }
-        };
-    }
-
-    private void initFileController(Connection connection) {
+    public void initFileController(Connection connection) {
         this.fileController = new FileController(connection);
     }
 
-    public void registrationButtonPressed(RegistrationPane registrationPane) {
-        registrationPane.setVisible(true);
-    }
-
-    public void rulesClicked() {
-        System.out.println("Open rules"); //TODO
-    }
-
-    public void sendRegistration(RegistrationPane registrationPane) {
-        if (!LUtils.isNotValidUserName(registrationPane.getUserName().getText())) {
-            registrationPane.getErrorMessage().setText("Incorrect username");
-            return;
-        }
-        if (registrationPane.getPassword().getText().isEmpty()) {
-            registrationPane.getErrorMessage().setText("Empty password");
-            return;
-        }
-        if (!registrationPane.getPassword().getText().equals(registrationPane.getPasswordConfirmation().getText())) {
-            registrationPane.getErrorMessage().setText("Passwords do not match");
-            return;
-        }
-
-        if (!registrationPane.getRulesConfirmation().isSelected()) {
-            registrationPane.getErrorMessage().setText("Need to accept the rules");
-            return;
-        }
-        try {
-            int responseCode = connection.sendRegistration(registrationPane.getUserName().getText(), registrationPane.getPassword().getText());
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                registrationPane.getErrorMessage().setText("");
-                registrationPane.setVisible(false);
-            } else {
-                registrationPane.getErrorMessage().setText(Connection.getErrorMessage(responseCode));
-            }
-        } catch (Exception e) {
-            registrationPane.getErrorMessage().setText("Can't sign up: " + e.getMessage());
-        }
-
-    }
-
-    public void cancelRegistration(RegistrationPane registrationPane) {
-        registrationPane.setVisible(false);
-    }
-
-    public void setProgressView(ProgressView progressView) {
-        this.progressView = progressView;
-    }
-
-    public List<ServerInfo> retrieveServerList() {
-        if (connection == null) return Collections.emptyList();
-        JSONObject serversInfoJSON = connection.getServersInfoJSON();
-        if (serversInfoJSON == null) {
-            return Collections.emptyList();
-        }
-        List<ServerInfo> serverInfoList = new ArrayList<>();
-        JSONArray serversInfoArray = (JSONArray) serversInfoJSON.get("Servers");
-        for (Object serverInfoJSONObject : serversInfoArray) {
-            JSONObject serverInfoJSON = (JSONObject) serverInfoJSONObject;
-            String serverName = (String) serverInfoJSON.get("serverName");
-            String serverDescription = (String) serverInfoJSON.get("serverDescription");
-            String serverIPPort = (String) serverInfoJSON.get("serverIP");
-
-            serverInfoList.add(new ServerInfo(serverName, serverDescription, serverIPPort.split(":")[0], Integer.parseInt(serverIPPort.split(":")[1])));
-        }
-
-        return serverInfoList;
-    }
-
-    public void serverSelected(Object selectedServer) {
-        if (selectedServer instanceof ServerInfo) {
-            this.selectedServer = (ServerInfo) selectedServer;
-        }
-    }
-
     public BackgroundReceiverTask createAndStartBackgroundReceiverTask() {
-        BackgroundReceiverTask readServerImageTask = new BackgroundReceiverTask(connection, fileController);
+        BackgroundReceiverTask readServerImageTask = new BackgroundReceiverTask(ConnectionController.getInstance().getConnection(), fileController);
         startTask(readServerImageTask);
         return readServerImageTask;
     }
 
     public void fillNewsFlow(NewsPane newsPane) {
-        if (connection != null) {
-            AdvertisementReceiver advertisementReceiver = new RestAdvertisementReceiver(connection);
+        if (ConnectionController.getInstance().getConnection() != null) {
+            AdvertisementReceiver advertisementReceiver = new RestAdvertisementReceiver(ConnectionController.getInstance().getConnection());
             List<Advertisement> allAds = advertisementReceiver.receiveAdvertisements();
             newsPane.clearTextFlow();
 
@@ -394,23 +207,16 @@ public class LauncherController implements Controller {
         }
     }
 
-    public void reconnectButtonPressed() {
-        if (Settings.getInstance().isOfflineMode()) {
-            connection = null;
-        } else if (connection == null || !connection.validateConnection()
-                || connection instanceof StubConnection || Settings.getInstance().getLserverURL() != null) {
-            establishConnection();
-            this.downloadService = new DownloadFilesService(fileController);
-            this.loginService = new LoginService(connection);
-        }
-    }
-
     public SettingsController getOrCreateSettingController() {
         if (settingsController == null) {
-            settingsController = new SettingsController(this, fileController);
+            settingsController = new SettingsController(ConnectionController.getInstance(), fileController);
         }
 
 
         return settingsController;
+    }
+
+    public void createOrUpdateDownloadFileService() {
+        this.downloadService = new DownloadFilesService(fileController);
     }
 }

@@ -1,11 +1,13 @@
 package net.lim.controller;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
 import net.lim.view.BasicPane;
+import net.lim.view.LoginPane;
 
 public class StageController implements Controller {
 
@@ -14,18 +16,24 @@ public class StageController implements Controller {
     private boolean isMaximized;
 
     private BasicPane basicView;
-    private final LauncherController launcherController;
+    private LauncherController launcherController;
+    private final ConnectionController connectionController;
+    private LoginController loginController;
 
     public StageController(Stage primaryStage) {
         this.primaryStage = primaryStage;
         initializeDefaultXAndY(primaryStage);
         this.launcherController = new LauncherController(this);
+        this.connectionController = ConnectionController.getInstance(launcherController, this);
+        this.loginController = new LoginController(this);
     }
 
     @Override
     public void init() {
         getOrCreateBasicView();
+        connectionController.init();
         launcherController.init();
+        loginController.init();
     }
 
     public BasicPane getOrCreateBasicView() {
@@ -100,5 +108,29 @@ public class StageController implements Controller {
         stage.setY(0.0);
         stage.setWidth(Screen.getPrimary().getBounds().getWidth());
         stage.setHeight(Screen.getPrimary().getBounds().getHeight());
+    }
+
+    public LoginController getLoginController() {
+        return loginController;
+    }
+
+    public LoginPane getLoginPane() {
+        return getOrCreateBasicView().getLoginPane();
+    }
+
+    public Task<Void> createWaitingTask(long milis) {
+
+        return new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Thread.sleep(milis);
+                getOrCreateBasicView().getProgressView().setVisible(false);
+                return null;
+            }
+        };
+    }
+
+    public void updateConnectionStatus(boolean connectionOK, String errorMessage) {
+        basicView.setConnectionStatus(connectionOK, errorMessage);
     }
 }

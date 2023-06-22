@@ -35,7 +35,6 @@ public class BasicPane extends Pane {
     }
 
     public void init() {
-        addBackgroundImage();
         initHeaderPane();
         initNewsPane();
         initConnectionStatusIconView();
@@ -45,6 +44,7 @@ public class BasicPane extends Pane {
         initFileCheckView();
         addContent();
         addAllStyleSheets();
+        addBackgroundImage();
     }
 
     private void initSettingsPane() {
@@ -84,6 +84,14 @@ public class BasicPane extends Pane {
         return "Connected to the server".equals(lServerConnectionStatusIconView.accessibleTextProperty().get());
     }
 
+    public LoginPane getLoginPane() {
+        return loginPane;
+    }
+
+    public ProgressView getProgressView() {
+        return progressView;
+    }
+
     private void initConnectionStatusIconView() {
         lServerConnectionStatusIconView = new ImageView();
         lServerConnectionStatusIconView.xProperty().bind(this.widthProperty().add(-48));
@@ -102,12 +110,10 @@ public class BasicPane extends Pane {
         progressView.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
         progressView.setOpacity(0.9);
         progressView.setVisible(false);
-
-        controller.getLauncherController().setProgressView(progressView);
     }
 
     private void initRegistrationPane() {
-        registrationPane = new RegistrationPane(controller.getLauncherController());
+        registrationPane = new RegistrationPane(controller.getLoginController().getOrCreateRegistrationController());
         registrationPane.setVisible(false);
         registrationPane.layoutYProperty().bind(settingsPane.layoutYProperty().add(settingsPane.heightProperty()).add(16));
         registrationPane.layoutXProperty().bind(this.widthProperty().add(registrationPane.widthProperty().multiply(-1)));
@@ -132,7 +138,7 @@ public class BasicPane extends Pane {
     }
 
     private void initLoginPane() {
-        loginPane = new LoginPane(controller.getLauncherController(), registrationPane);
+        loginPane = new LoginPane(controller.getLoginController(), registrationPane);
 
         loginPane.minWidthProperty().bind(this.widthProperty());
         loginPane.maxWidthProperty().bind(this.widthProperty());

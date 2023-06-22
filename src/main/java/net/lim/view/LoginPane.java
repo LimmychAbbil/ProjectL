@@ -3,7 +3,7 @@ package net.lim.view;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import net.lim.controller.LauncherController;
+import net.lim.controller.LoginController;
 import net.lim.model.ServerInfo;
 
 import java.util.List;
@@ -12,15 +12,15 @@ import java.util.List;
  * Created by Limmy on 13.05.2018.
  */
 public class LoginPane extends HBox {
-    private final LauncherController controller;
+    private final LoginController controller;
     private TextField userNameField;
     private PasswordField passwordField;
     private Button loginButton;
     private Button registrationButton;
-    private RegistrationPane registrationPane;
+    private final RegistrationPane registrationPane;
     private ChoiceBox<Control> serverListDropdown;
 
-    public LoginPane(LauncherController controller, RegistrationPane registrationPane) {
+    public LoginPane(LoginController controller, RegistrationPane registrationPane) {
         this.controller = controller;
         this.registrationPane = registrationPane;
         init();

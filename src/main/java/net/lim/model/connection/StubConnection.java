@@ -12,6 +12,7 @@ public class StubConnection extends Connection {
 
     @Override
     public boolean validateConnection() {
+        super.closed = false;
         return true;
     }
 

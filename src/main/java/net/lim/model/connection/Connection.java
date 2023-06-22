@@ -11,6 +11,12 @@ import java.util.List;
  * Created by Limmy on 02.05.2018.
  */
 public abstract class Connection {
+    protected boolean closed = true;
+
+    public boolean isClosed() {
+        return closed;
+    }
+
     public abstract boolean validateConnection();
 
     public abstract boolean validateVersionSupported(String currentVersion);

@@ -132,7 +132,12 @@ public class RestConnection extends Connection {
         }
         try (Client client = ClientBuilder.newClient()) {
             Response response = client.target(uri).request().get();
-            return response.getStatus() == Response.Status.OK.getStatusCode();
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                super.closed = false;
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             System.err.println("Can't establish a connection: " + e.getMessage());
             return false;

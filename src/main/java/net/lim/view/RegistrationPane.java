@@ -7,12 +7,13 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import net.lim.controller.LauncherController;
+import net.lim.controller.RegistrationController;
 
 /**
  * Created by Limmy on 22.05.2018.
  */
 public class RegistrationPane extends GridPane {
-    private LauncherController controller;
+    private RegistrationController controller;
     private TextField userName;
     private PasswordField password;
     private PasswordField passwordConfirmation;
@@ -21,7 +22,7 @@ public class RegistrationPane extends GridPane {
     private Label errorMessage;
     private Button sendButton;
     private Button cancelButton;
-    public RegistrationPane(LauncherController controller) {
+    public RegistrationPane(RegistrationController controller) {
         this.controller = controller;
         init();
     }
@@ -79,7 +80,7 @@ public class RegistrationPane extends GridPane {
         this.addRow(5, sendButton, cancelButton);
     }
 
-    public LauncherController getController() {
+    public RegistrationController getController() {
         return controller;
     }
 

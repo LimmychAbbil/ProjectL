@@ -15,7 +15,7 @@
 
     <groupId>net.lim</groupId>
     <artifactId>LLauncher</artifactId>
-    <version>0.05h</version>
+    <version>0.05i</version>
 
     <build>
         <finalName>LLauncher</finalName>

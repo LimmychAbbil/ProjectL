@@ -10,6 +10,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
+import net.lim.controller.ConnectionController;
 import net.lim.controller.SettingsController;
 import net.lim.model.FileManager;
 import net.lim.model.Settings;
@@ -43,7 +44,7 @@ public class SettingsPane extends GridPane {
 
     private void initReconnectButton() {
         this.reconnect = new Button("Reconnect");
-        this.reconnect.setOnMouseClicked(e -> controller.getLauncherController().reconnectButtonPressed());
+        this.reconnect.setOnMouseClicked(e -> ConnectionController.getInstance().reconnectButtonPressed());
     }
 
     private void initServerURL() {
@@ -76,7 +77,7 @@ public class SettingsPane extends GridPane {
         this.offlineModeCheckBox.setOnMouseClicked(e -> {
             Settings.getInstance().setOfflineMode(offlineModeCheckBox.isSelected());
             //reconnect
-            controller.getLauncherController().reconnectButtonPressed();
+            ConnectionController.getInstance().reconnectButtonPressed();
         });
     }
 

@@ -9,6 +9,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import net.lim.LLauncher;
+import net.lim.controller.Controller;
 import net.lim.controller.LauncherController;
 import net.lim.controller.StageController;
 
@@ -18,7 +19,7 @@ import java.io.IOException;
  * Created by Limmy on 13.05.2018.
  */
 public class HeaderPane extends Pane {
-    private StageController controller;
+    private final StageController controller;
     private Label headerText;
     private ImageView minimizeButton, maximizeButton, exitButton;
 
@@ -38,8 +39,8 @@ public class HeaderPane extends Pane {
     }
 
     private void setDragAction() {
-        this.setOnMousePressed(e -> controller.handleMousePress(e));
-        this.setOnMouseDragged(e -> controller.handleMouseDragged(e));
+        this.setOnMousePressed(controller::handleMousePress);
+        this.setOnMouseDragged(controller::handleMouseDragged);
     }
 
     private void addElements() {

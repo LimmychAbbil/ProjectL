@@ -8,11 +8,11 @@ public class SettingsController implements Controller {
     private SettingsPane settingsView;
 
     private final FileController fileController;
-    private final LauncherController launcherController;
+    private final ConnectionController connectionController;
 
-    public SettingsController(LauncherController launcherController, FileController fileController) {
+    public SettingsController(ConnectionController connectionController, FileController fileController) {
         this.fileController = fileController;
-        this.launcherController = launcherController;
+        this.connectionController = connectionController;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class SettingsController implements Controller {
     }
 
 
-    public LauncherController getLauncherController() {
-        return launcherController;
+    public ConnectionController getConnectionController() {
+        return connectionController;
     }
 }
