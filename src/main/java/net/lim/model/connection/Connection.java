@@ -42,11 +42,11 @@ public abstract class Connection {
             case 200:
                 return "";
             case 507:
-                return "Имя пользователя занято";
+                return "Username is taken";
             case 508:
-                return "Вам запрещено регистрироваться";
+                return "You are banned to register new accounts";
             default:
-                return "Неизвестная ошибка";
+                return "Unknown error";
         }
     }
 

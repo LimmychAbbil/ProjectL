@@ -7,7 +7,6 @@ import net.lim.view.RegistrationPane;
 import javax.net.ssl.HttpsURLConnection;
 
 public class RegistrationController implements Controller {
-    private RegistrationPane registrationPane;
 
     @Override
     public void init() {

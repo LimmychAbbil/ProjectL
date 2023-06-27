@@ -11,18 +11,19 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import net.lim.controller.LauncherController;
+import net.lim.controller.NewsController;
 import net.lim.model.adv.Advertisement;
 
 /**
  * Pane containing news area (textflow in scrollpane) and a button to hide/show this area.
  */
 public class NewsPane extends Pane {
-    private LauncherController controller;
+    private NewsController controller;
     private ScrollPane scrollPane;
     private TextFlow newsTextFlow;
     private Rectangle showHideNews;
 
-    public NewsPane(LauncherController controller) {
+    public NewsPane(NewsController controller) {
         this.controller = controller;
         init();
     }

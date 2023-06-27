@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import net.lim.controller.NewsController;
 import net.lim.controller.StageController;
 import net.lim.controller.tasks.BackgroundReceiverTask;
 
@@ -120,7 +121,9 @@ public class BasicPane extends Pane {
     }
 
     private void initNewsPane() {
-        newsPane = new NewsPane(controller.getLauncherController());
+        NewsController newsController = new NewsController();
+        newsController.init();
+        newsPane = new NewsPane(newsController);
 
         newsPane.prefWidthProperty().bind(this.widthProperty().divide(3));
         newsPane.prefHeightProperty().bind(this.heightProperty().divide(1.5));
