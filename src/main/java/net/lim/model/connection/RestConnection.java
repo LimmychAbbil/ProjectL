@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.Response;
 import net.lim.controller.LauncherController;
 import net.lim.model.ServerInfo;
 import net.lim.model.adv.Advertisement;
+import net.lim.service.ConfigReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,10 +20,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RestConnection extends Connection {
 
-    private String url;
+    private final String url;
 
     public RestConnection(String url) {
         this.url = url;
@@ -30,9 +32,7 @@ public class RestConnection extends Connection {
 
     @Override
     public boolean login(String userName, String password) {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+        try (Client client = createClient()){
             Form loginForm = new Form();
             loginForm.param("userName", userName);
             loginForm.param("pass", password);
@@ -40,34 +40,22 @@ public class RestConnection extends Connection {
             LauncherController.token = (String) getJsonFromResponse(response).get("tokenHash");
 
             return response.getStatus() == Response.Status.OK.getStatusCode();
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
     @Override
     public int sendRegistration(String userName, String password) {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+        try (Client client = createClient()){
             Form registrationForm = new Form();
             registrationForm.param("userName", userName);
             registrationForm.param("pass", password);
             Response response = client.target(url + "/register").request().post(Entity.form(registrationForm));
             return response.getStatus();
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
     public JSONObject getFileServerInfo() {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+        try (Client client = createClient()){
             Response response = client.target(url + "/files/serverInfo").request().get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 return getJsonFromResponse(response);
@@ -75,33 +63,21 @@ public class RestConnection extends Connection {
                 //TODO handle server error
                 return new JSONObject();
             }
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
     @Override
     public JSONArray getIgnoredFilesInfo() {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+        try (Client client = createClient()){
             Response response = client.target(url + "/files/ignoredFiles").request().get();
             JSONObject json = getJsonFromResponse(response);
             return (JSONArray) json.get("ignoredFiles");
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
     @Override
     public JSONObject getFullHashInfo() {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+        try (Client client = createClient()) {
             Response response = client.target(url + "/files/hash").request().get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 return getJsonFromResponse(response);
@@ -109,14 +85,9 @@ public class RestConnection extends Connection {
                 //TODO handle server error
                 return new JSONObject();
             }
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
-    //TODO timeout
     @Override
     public boolean validateConnection() {
         URI uri;
@@ -130,7 +101,7 @@ public class RestConnection extends Connection {
         if (!uri.isAbsolute()) {
             return false;
         }
-        try (Client client = ClientBuilder.newClient()) {
+        try (Client client = createClient()) {
             Response response = client.target(uri).request().get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 super.closed = false;
@@ -146,50 +117,33 @@ public class RestConnection extends Connection {
 
     @Override
     public boolean validateVersionSupported(String currentVersion) {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+        try (Client client = createClient()){
             Form versionForm = new Form();
             versionForm.param("version", currentVersion);
             Response response = client.target(url + "/versionCheck").request().post(Entity.form(versionForm));
             return response.getStatus() == Response.Status.OK.getStatusCode();
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
     @Override
     public JSONObject getServersInfoJSON() {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+        try(Client client = createClient()) {
             Response response = client.target(url + "/servers").request().get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 return getJsonFromResponse(response);
             }
         } catch (ProcessingException ignored) {
             //NOOP: client not connected to server
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
         return null;
     }
 
     public String getBackgroundImageName() {
-        Client client = null;
-        try {
-            client = ClientBuilder.newClient();
+
+        try (Client client = createClient()) {
             Response response = client.target(url + "/images/current").request().get();
             JSONObject currentImageNameJSON = getJsonFromResponse(response);
             return (String) currentImageNameJSON.get("current.background");
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
@@ -197,7 +151,7 @@ public class RestConnection extends Connection {
     public List<Advertisement> getAdvs() {
         List<Advertisement> list = new ArrayList<>();
 
-        try (Client client = ClientBuilder.newClient();) {
+        try (Client client = createClient()) {
             Response response = client.target(url + "/adv").request().get();
             JSONObject advJSON = getJsonFromResponse(response);
             JSONArray allAdvs = (JSONArray) advJSON.get("Advertisements");
@@ -229,7 +183,7 @@ public class RestConnection extends Connection {
         if (selectedServer == null || selectedServer == ServerInfo.OFFLINE) {
             return LauncherController.DEFAULT_COMMAND;
         }
-        try (Client client = ClientBuilder.newClient()) {
+        try (Client client = createClient()) {
 
             Response response = client.target(url + "/servers/startupCommand")
                     .queryParam("serverName", selectedServer.getServerName()).request().get();
@@ -253,5 +207,16 @@ public class RestConnection extends Connection {
             e.printStackTrace();
         }
         return jsonObject;
+    }
+
+    private Client createClient() {
+        ClientBuilder builder = ClientBuilder.newBuilder();
+        String timeoutStringInConfigFile = ConfigReader.getProperties().getProperty("connection.timeout");
+        if (timeoutStringInConfigFile != null) {
+            builder.connectTimeout(Long.parseLong(timeoutStringInConfigFile), TimeUnit.SECONDS);
+            builder.readTimeout(Long.parseLong(timeoutStringInConfigFile), TimeUnit.SECONDS);
+        }
+
+        return builder.build();
     }
 }

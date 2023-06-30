@@ -19,6 +19,7 @@ import net.lim.model.adv.Advertisement;
  */
 public class NewsPane extends Pane {
     private NewsController controller;
+
     private ScrollPane scrollPane;
     private TextFlow newsTextFlow;
     private Rectangle showHideNews;

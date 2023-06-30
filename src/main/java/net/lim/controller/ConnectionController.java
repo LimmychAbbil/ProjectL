@@ -5,6 +5,7 @@ import net.lim.model.Settings;
 import net.lim.model.connection.Connection;
 import net.lim.model.connection.RestConnection;
 import net.lim.model.connection.StubConnection;
+import net.lim.service.ConfigReader;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -67,7 +68,7 @@ public class ConnectionController implements Controller {
         String launchServerURL;
         if (Settings.getInstance().getLserverURL() == null) {
             //can't be null here
-            launchServerURL = readServerURLFromConfigFile();
+            launchServerURL = ConfigReader.getProperties().getProperty("server.ip");
         } else {
             launchServerURL = Settings.getInstance().getLserverURL();
         }
@@ -98,19 +99,5 @@ public class ConnectionController implements Controller {
             System.err.println("Connection attempt failed: " + e.getMessage());
         }
         stageController.updateConnectionStatus(connectionOK, errorMessage);
-    }
-
-    private String readServerURLFromConfigFile() {
-        try (InputStream reader = getClass().getClassLoader().getResourceAsStream("configuration/client.config")) {
-            Properties properties = new Properties();
-            properties.load(reader);
-            String serverIp = properties.getProperty("server.ip");
-            if (serverIp == null) {
-                throw new RuntimeException("Config file doesn't contain server.ip property");
-            }
-            return serverIp;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
