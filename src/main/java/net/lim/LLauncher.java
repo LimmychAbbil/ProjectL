@@ -15,7 +15,7 @@ public class LLauncher extends Application {
     public final static double MIN_WIDTH = 600;
     public final static double MIN_HEIGHT = 400;
     public static final String PROGRAM_NAME = "LLauncher";
-    public static final String PROGRAM_VERSION = "0.05k";
+    public static final String PROGRAM_VERSION = "0.05l";
 
     private StageController controller;
 
@@ -52,6 +52,4 @@ public class LLauncher extends Application {
         Image icon = new Image(this.getClass().getClassLoader().getResource("icon.ico").toString());
         primaryStage.getIcons().add(icon);
     }
-
-
 }

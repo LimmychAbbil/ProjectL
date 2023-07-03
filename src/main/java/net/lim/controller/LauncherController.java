@@ -142,7 +142,7 @@ public class LauncherController implements Controller {
 
     public SettingsController getOrCreateSettingController() {
         if (settingsController == null) {
-            settingsController = new SettingsController(ConnectionController.getInstance(), fileController);
+            settingsController = new SettingsController(fileController);
         }
 
 

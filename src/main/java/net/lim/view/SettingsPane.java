@@ -64,7 +64,7 @@ public class SettingsPane extends GridPane {
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setInitialDirectory(new File(FileManager.DEFAULT_DIRECTORY));
         directoryPath.setEditable(false);
-        directoryPath.onMouseClickedProperty().setValue(e -> {
+        directoryPath.setOnMouseClicked(e -> {
             directoryPath.setText(chooser.showDialog(null).toString());
             chooser.setInitialDirectory(new File(directoryPath.getText()));
             controller.defaultDirectorySelected(directoryPath.getText());

@@ -8,11 +8,9 @@ public class SettingsController implements Controller {
     private SettingsPane settingsView;
 
     private final FileController fileController;
-    private final ConnectionController connectionController;
 
-    public SettingsController(ConnectionController connectionController, FileController fileController) {
+    public SettingsController(FileController fileController) {
         this.fileController = fileController;
-        this.connectionController = connectionController;
     }
 
     @Override
@@ -33,10 +31,5 @@ public class SettingsController implements Controller {
         }
 
         return settingsView;
-    }
-
-
-    public ConnectionController getConnectionController() {
-        return connectionController;
     }
 }
