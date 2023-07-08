@@ -114,10 +114,6 @@ public class StageController implements Controller {
         return loginController;
     }
 
-    public LoginPane getLoginPane() {
-        return getOrCreateBasicView().getLoginPane();
-    }
-
     public Task<Void> createWaitingTask(long milis) {
 
         return new Task<Void>() {

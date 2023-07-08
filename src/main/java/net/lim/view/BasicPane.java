@@ -48,21 +48,6 @@ public class BasicPane extends Pane {
         addBackgroundImage();
     }
 
-    private void initSettingsPane() {
-        this.settingsPane = controller.getLauncherController().getOrCreateSettingController().getOrCreateSettingsPane();
-
-        this.settingsPane.setVisible(false);
-        this.settingsPane.layoutYProperty().bind(lServerConnectionStatusIconView.yProperty().add(32));
-        this.settingsPane.layoutXProperty().bind(this.widthProperty().add(settingsPane.widthProperty().multiply(-1)));
-    }
-
-    private void postInitAfterConnect() {
-        addBackgroundImage();
-        loginPane.updateServersList();
-
-        newsPane.postInit();
-    }
-
     public void setConnectionStatus(boolean isConnected, String message) {
         if (isConnected) {
             lServerConnectionStatusIconView.imageProperty().set(new Image(onlineIconURL.toString(), true));
@@ -81,14 +66,6 @@ public class BasicPane extends Pane {
         setConnectionStatus(isConnected, null);
     }
 
-    public boolean getConnectionStatus() {
-        return "Connected to the server".equals(lServerConnectionStatusIconView.accessibleTextProperty().get());
-    }
-
-    public LoginPane getLoginPane() {
-        return loginPane;
-    }
-
     public ProgressView getProgressView() {
         return progressView;
     }
@@ -100,6 +77,21 @@ public class BasicPane extends Pane {
 
         lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
         lServerConnectionStatusIconView.setOnMouseClicked(e -> this.settingsPane.setVisible(!settingsPane.isVisible()));
+    }
+
+    private void initSettingsPane() {
+        this.settingsPane = controller.getLauncherController().getOrCreateSettingController().getOrCreateSettingsPane();
+
+        this.settingsPane.setVisible(false);
+        this.settingsPane.layoutYProperty().bind(lServerConnectionStatusIconView.yProperty().add(32));
+        this.settingsPane.layoutXProperty().bind(this.widthProperty().add(settingsPane.widthProperty().multiply(-1)));
+    }
+
+    private void postInitAfterConnect() {
+        addBackgroundImage();
+        loginPane.updateServersList();
+
+        newsPane.postInit();
     }
 
     private void initFileCheckView() {

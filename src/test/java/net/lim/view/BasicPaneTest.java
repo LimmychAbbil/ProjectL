@@ -8,6 +8,7 @@ import net.lim.unit.BaseFXUnitTestClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.List;
@@ -45,43 +46,84 @@ public class BasicPaneTest extends BaseFXUnitTestClass {
 
     @Test
     public void testHeaderPaneAddedToBasicPane() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren().filtered(node -> node.getClass().equals(HeaderPane.class));
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(HeaderPane.class));
         Assertions.assertEquals(1, allLabelOnHeaderPaneList.size());
     }
 
     @Test
     public void testNewsPaneAddedToBasicPane() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren().filtered(node -> node.getClass().equals(NewsPane.class));
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(NewsPane.class));
         Assertions.assertEquals(1, allLabelOnHeaderPaneList.size());
     }
 
     @Test
     public void testLoginPaneAddedToBasicPane() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren().filtered(node -> node.getClass().equals(LoginPane.class));
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(LoginPane.class));
         Assertions.assertEquals(1, allLabelOnHeaderPaneList.size());
     }
 
     @Test
     public void testRegistrationPaneAddedToBasicPane() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren().filtered(node -> node.getClass().equals(RegistrationPane.class));
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(RegistrationPane.class));
         Assertions.assertEquals(1, allLabelOnHeaderPaneList.size());
     }
 
     @Test
     public void testSettingsPaneAddedToBasicPane() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren().filtered(node -> node.getClass().equals(SettingsPane.class));
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(SettingsPane.class));
         Assertions.assertEquals(1, allLabelOnHeaderPaneList.size());
     }
 
     @Test
     public void testProgressViewAddedToBasicPane() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren().filtered(node -> node.getClass().equals(ProgressView.class));
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(ProgressView.class));
         Assertions.assertEquals(1, allLabelOnHeaderPaneList.size());
     }
 
     @Test
     public void testBackgroundImageAddedToBasicPane() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren().filtered(node -> node.getClass().equals(ImageView.class));
-        Assertions.assertEquals(1, allLabelOnHeaderPaneList.size());
+        List<Node> allImageViewOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(ImageView.class));
+        Assertions.assertEquals(1, allImageViewOnHeaderPaneList.size());
+    }
+
+    @Test
+    public void testSetConnectionStatusOffline() {
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(ImageView.class));
+
+        ImageView connectionStatusImageView = (ImageView) allLabelOnHeaderPaneList.get(0);
+
+        basicPane.setConnectionStatus(false);
+
+        Assertions.assertTrue(connectionStatusImageView.getImage().getUrl().contains("offline"));
+    }
+
+    @Test
+    public void testSetConnectionStatusOnline() {
+        try (MockedStatic<ConnectionController> connectionControllerMockedStatic
+                     = Mockito.mockStatic(ConnectionController.class)) {
+            ConnectionController mockedConnectionController = Mockito.mock();
+            connectionControllerMockedStatic.when(() -> ConnectionController.getInstance())
+                    .thenReturn(mockedConnectionController);
+            List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                    .filtered(node -> node.getClass().equals(ImageView.class));
+
+            ImageView connectionStatusImageView = (ImageView) allLabelOnHeaderPaneList.get(0);
+
+            basicPane.setConnectionStatus(true);
+
+            Assertions.assertTrue(connectionStatusImageView.getImage().getUrl().contains("online"));
+            Assertions.assertEquals("Connected to the server", connectionStatusImageView.getAccessibleText());
+
+            Mockito.verify(loginControllerMock).retrieveServerList();
+        }
+
     }
 }
