@@ -130,8 +130,9 @@ public class LauncherController implements Controller {
         });
     }
 
-    public void initFileController(Connection connection) {
-        this.fileController = new FileController(connection);
+    public void initFileController() {
+        this.fileController = new FileController();
+        this.fileCheckerService = new FileCheckerService(fileController);
     }
 
     public BackgroundReceiverTask createAndStartBackgroundReceiverTask() {

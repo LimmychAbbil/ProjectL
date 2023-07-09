@@ -36,7 +36,7 @@ public class ConnectionController implements Controller {
         return instance;
     }
 
-    protected Connection getConnection() {
+    public Connection getConnection() {
         if (connection == null || connection.isClosed()) {
             return null;
         } else {
@@ -85,7 +85,7 @@ public class ConnectionController implements Controller {
                         connectionOK = false;
                     }
 
-                    launcherController.initFileController(connection);
+                    launcherController.initFileController();
                 } else {
                     errorMessage = "Can't establish connection";
                 }

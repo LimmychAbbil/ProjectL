@@ -9,8 +9,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import net.lim.LLauncher;
-import net.lim.controller.Controller;
-import net.lim.controller.LauncherController;
 import net.lim.controller.StageController;
 
 import java.io.IOException;

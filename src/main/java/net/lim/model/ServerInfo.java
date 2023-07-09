@@ -49,8 +49,4 @@ public class ServerInfo extends Control {
     public int getPort() {
         return port;
     }
-
-    public String getDescription() {
-        return description;
-    }
 }

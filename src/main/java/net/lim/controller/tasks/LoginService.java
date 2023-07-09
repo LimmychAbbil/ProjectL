@@ -2,6 +2,7 @@ package net.lim.controller.tasks;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import net.lim.controller.ConnectionController;
 import net.lim.model.connection.Connection;
 
 /**
@@ -9,14 +10,8 @@ import net.lim.model.connection.Connection;
  */
 public class LoginService extends Service<Boolean> {
 
-    private final Connection connection;
-
     private String userName;
     private String password;
-
-    public LoginService(Connection connection) {
-        this.connection = connection;
-    }
 
     public void start(String userName, String password) {
         this.reset();
@@ -27,13 +22,13 @@ public class LoginService extends Service<Boolean> {
 
     @Override
     protected Task<Boolean> createTask() {
-        return new Task<Boolean>() {
+        return new Task<>() {
             @Override
             protected Boolean call() throws Exception {
                 updateMessage("Login...");
                 boolean loginSuccess = false;
                 try {
-                    loginSuccess = connection.login(userName, password);
+                    loginSuccess = ConnectionController.getInstance().getConnection().login(userName, password);
                     if (!loginSuccess) {
                         updateMessage("Wrong user or password");
                     }

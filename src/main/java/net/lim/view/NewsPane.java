@@ -10,7 +10,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import net.lim.controller.LauncherController;
 import net.lim.controller.NewsController;
 import net.lim.model.adv.Advertisement;
 

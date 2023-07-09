@@ -17,7 +17,8 @@ public class FileController implements Controller {
     private FileManager fileManager;
     private String defaultDir;
 
-    FileController(Connection connection) {
+    FileController() {
+        Connection connection = ConnectionController.getInstance().getConnection();
         JSONObject ftpFileInto = connection.getFileServerInfo();
         fileManager = new FileManager(ftpFileInto);
         fileManager.parseIgnoredFiles(connection.getIgnoredFilesInfo());

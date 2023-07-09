@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import java.net.URL;
 import java.util.List;
 
 public class BasicPaneTest extends BaseFXUnitTestClass {
@@ -112,10 +113,10 @@ public class BasicPaneTest extends BaseFXUnitTestClass {
             ConnectionController mockedConnectionController = Mockito.mock();
             connectionControllerMockedStatic.when(() -> ConnectionController.getInstance())
                     .thenReturn(mockedConnectionController);
-            List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+            List<Node> allImageViewPaneList = basicPane.getChildren()
                     .filtered(node -> node.getClass().equals(ImageView.class));
 
-            ImageView connectionStatusImageView = (ImageView) allLabelOnHeaderPaneList.get(0);
+            ImageView connectionStatusImageView = (ImageView) allImageViewPaneList.get(0);
 
             basicPane.setConnectionStatus(true);
 
@@ -124,6 +125,23 @@ public class BasicPaneTest extends BaseFXUnitTestClass {
 
             Mockito.verify(loginControllerMock).retrieveServerList();
         }
+    }
 
+    @Test
+    public void testAddBackgroundImageNullGetDefault() {
+        basicPane.addBackgroundImage(null);
+
+        URL defaultBackgroundURL = BasicPane.class.getClassLoader().getResource("background.jpg");
+        Assertions.assertEquals(basicPane.getBackground().getImages().get(0).getImage().getUrl(),
+                defaultBackgroundURL.toString());
+    }
+
+    @Test
+    public void testGetProgressView() {
+        ProgressView progressView = basicPane.getProgressView();
+
+        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
+                .filtered(node -> node.getClass().equals(ProgressView.class));
+        Assertions.assertEquals(progressView, allLabelOnHeaderPaneList.get(0));
     }
 }

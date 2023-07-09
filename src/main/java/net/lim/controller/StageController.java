@@ -6,8 +6,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
+import net.lim.controller.tasks.BackgroundReceiverTask;
 import net.lim.view.BasicPane;
-import net.lim.view.LoginPane;
 
 public class StageController implements Controller {
 
@@ -16,9 +16,9 @@ public class StageController implements Controller {
     private boolean isMaximized;
 
     private BasicPane basicView;
-    private LauncherController launcherController;
+    private final LauncherController launcherController;
     private final ConnectionController connectionController;
-    private LoginController loginController;
+    private final LoginController loginController;
 
     public StageController(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -128,5 +128,11 @@ public class StageController implements Controller {
 
     public void updateConnectionStatus(boolean connectionOK, String errorMessage) {
         basicView.setConnectionStatus(connectionOK, errorMessage);
+        if (connectionOK) {
+        BackgroundReceiverTask backgroundReceiverTask
+                = getLauncherController().createAndStartBackgroundReceiverTask();
+
+        backgroundReceiverTask.setOnSucceeded(event -> basicView.addBackgroundImage(backgroundReceiverTask.getValue()));
+        }
     }
 }

@@ -27,7 +27,7 @@ public class LoginController implements Controller {
     @Override
     public void init() {
         registrationController.init();
-        this.loginService = new LoginService(ConnectionController.getInstance().getConnection());
+        this.loginService = new LoginService();
 
     }
 

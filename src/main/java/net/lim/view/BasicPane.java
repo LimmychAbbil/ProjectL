@@ -7,9 +7,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.lim.controller.NewsController;
 import net.lim.controller.StageController;
-import net.lim.controller.tasks.BackgroundReceiverTask;
 
-import java.io.FileNotFoundException;
 import java.net.URL;
 
 /**
@@ -45,7 +43,7 @@ public class BasicPane extends Pane {
         initFileCheckView();
         addContent();
         addAllStyleSheets();
-        addBackgroundImage();
+        addBackgroundImage(getDefaultBackgroundImage());
     }
 
     public void setConnectionStatus(boolean isConnected, String message) {
@@ -88,9 +86,7 @@ public class BasicPane extends Pane {
     }
 
     private void postInitAfterConnect() {
-        addBackgroundImage();
         loginPane.updateServersList();
-
         newsPane.postInit();
     }
 
@@ -140,30 +136,21 @@ public class BasicPane extends Pane {
         loginPane.layoutYProperty().bind(this.heightProperty().add(-48));
     }
 
-    private void addBackgroundImage() {
-        BackgroundReceiverTask backgroundImageTask = controller.getLauncherController().createAndStartBackgroundReceiverTask();
-        backgroundImageTask.setOnSucceeded(e -> {
-            Image backgroundImage = backgroundImageTask.getValue();
-            if (backgroundImage == null) {
-                backgroundImage = getDefaultBackgroundImage();
-            }
-            BackgroundImage backGround = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
-            setBackground(new Background(backGround));
-        });
+    public void addBackgroundImage(Image backgroundImage) {
+        if (backgroundImage == null) {
+            backgroundImage = getDefaultBackgroundImage();
+        }
+
+        BackgroundImage backGround = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
+        setBackground(new Background(backGround));
     }
 
     private Image getDefaultBackgroundImage() {
-        try {
-            URL defaultBackgroundURL = this.getClass().getClassLoader().getResource(DEFAULT_BACKGROUND_IMAGE_NAME);
-            if (defaultBackgroundURL != null) {
-                return new Image(defaultBackgroundURL.toString(), true);
-            } else {
-                throw new FileNotFoundException("Can't find default background");
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
+        URL defaultBackgroundURL = this.getClass().getClassLoader().getResource(DEFAULT_BACKGROUND_IMAGE_NAME);
+        if (defaultBackgroundURL == null) {
+            throw new IllegalStateException("Can't find default background");
         }
+        return new Image(defaultBackgroundURL.toString(), true);
     }
 
     private void addAllStyleSheets() {
