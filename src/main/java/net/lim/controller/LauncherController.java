@@ -6,7 +6,6 @@ import net.lim.controller.tasks.DownloadFilesService;
 import net.lim.controller.tasks.FileCheckerService;
 import net.lim.model.FileManager;
 import net.lim.model.Settings;
-import net.lim.model.connection.Connection;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
@@ -137,6 +136,10 @@ public class LauncherController implements Controller {
 
     public BackgroundReceiverTask createAndStartBackgroundReceiverTask() {
         BackgroundReceiverTask readServerImageTask = new BackgroundReceiverTask(ConnectionController.getInstance().getConnection(), fileController);
+
+        readServerImageTask.setOnSucceeded(event -> {
+            stageController.getOrCreateBasicView().addBackgroundImage(readServerImageTask.getValue());
+        });
         startTask(readServerImageTask);
         return readServerImageTask;
     }

@@ -6,7 +6,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.lim.LLauncher;
-import net.lim.controller.tasks.BackgroundReceiverTask;
+import net.lim.controller.tasks.ui.RotateStatusBarTask;
 import net.lim.view.BasicPane;
 
 public class StageController implements Controller {
@@ -19,6 +19,7 @@ public class StageController implements Controller {
     private final LauncherController launcherController;
     private final ConnectionController connectionController;
     private final LoginController loginController;
+    private final NewsController newsController;
 
     public StageController(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -26,11 +27,13 @@ public class StageController implements Controller {
         this.launcherController = new LauncherController(this);
         this.connectionController = ConnectionController.getInstance(launcherController, this);
         this.loginController = new LoginController(this);
+        this.newsController = new NewsController();
     }
 
     @Override
     public void init() {
         getOrCreateBasicView();
+        newsController.init();
         connectionController.init();
         launcherController.init();
         loginController.init();
@@ -114,6 +117,10 @@ public class StageController implements Controller {
         return loginController;
     }
 
+    public NewsController getNewsController() {
+        return newsController;
+    }
+
     public Task<Void> createWaitingTask(long milis) {
 
         return new Task<Void>() {
@@ -128,11 +135,12 @@ public class StageController implements Controller {
 
     public void updateConnectionStatus(boolean connectionOK, String errorMessage) {
         basicView.setConnectionStatus(connectionOK, errorMessage);
-        if (connectionOK) {
-        BackgroundReceiverTask backgroundReceiverTask
-                = getLauncherController().createAndStartBackgroundReceiverTask();
+    }
 
-        backgroundReceiverTask.setOnSucceeded(event -> basicView.addBackgroundImage(backgroundReceiverTask.getValue()));
-        }
+    public RotateStatusBarTask createAndStartRotateStatusIconTask() {
+        RotateStatusBarTask rotateStatusBarTask = new RotateStatusBarTask(basicView.getlServerConnectionStatusIconView());
+        startTask(rotateStatusBarTask);
+
+        return rotateStatusBarTask;
     }
 }

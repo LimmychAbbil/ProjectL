@@ -122,8 +122,6 @@ public class BasicPaneTest extends BaseFXUnitTestClass {
 
             Assertions.assertTrue(connectionStatusImageView.getImage().getUrl().contains("online"));
             Assertions.assertEquals("Connected to the server", connectionStatusImageView.getAccessibleText());
-
-            Mockito.verify(loginControllerMock).retrieveServerList();
         }
     }
 

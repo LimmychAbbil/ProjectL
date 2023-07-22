@@ -5,7 +5,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import net.lim.controller.NewsController;
 import net.lim.controller.StageController;
 
 import java.net.URL;
@@ -26,6 +25,7 @@ public class BasicPane extends Pane {
     private ImageView lServerConnectionStatusIconView;
 
     private final static URL offlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/offline.png");
+    private final static URL connectingIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/connecting.png");
     private final static URL onlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/online.png");
 
     public BasicPane(StageController controller) {
@@ -50,7 +50,6 @@ public class BasicPane extends Pane {
         if (isConnected) {
             lServerConnectionStatusIconView.imageProperty().set(new Image(onlineIconURL.toString(), true));
             lServerConnectionStatusIconView.setAccessibleText("Connected to the server");
-            postInitAfterConnect();
         } else {
             lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
             lServerConnectionStatusIconView.setAccessibleText(message);
@@ -68,12 +67,16 @@ public class BasicPane extends Pane {
         return progressView;
     }
 
+    public ImageView getlServerConnectionStatusIconView() {
+        return lServerConnectionStatusIconView;
+    }
+
     private void initConnectionStatusIconView() {
         lServerConnectionStatusIconView = new ImageView();
         lServerConnectionStatusIconView.xProperty().bind(this.widthProperty().add(-48));
         lServerConnectionStatusIconView.yProperty().bind(headerPane.heightProperty().add(24));
 
-        lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
+        lServerConnectionStatusIconView.imageProperty().set(new Image(connectingIconURL.toString(), true));
         lServerConnectionStatusIconView.setOnMouseClicked(e -> this.settingsPane.setVisible(!settingsPane.isVisible()));
     }
 
@@ -85,7 +88,7 @@ public class BasicPane extends Pane {
         this.settingsPane.layoutXProperty().bind(this.widthProperty().add(settingsPane.widthProperty().multiply(-1)));
     }
 
-    private void postInitAfterConnect() {
+    public void postInitAfterConnect() {
         loginPane.updateServersList();
         newsPane.postInit();
     }
@@ -109,9 +112,7 @@ public class BasicPane extends Pane {
     }
 
     private void initNewsPane() {
-        NewsController newsController = new NewsController();
-        newsController.init();
-        newsPane = new NewsPane(newsController);
+        newsPane = new NewsPane(controller.getNewsController());
 
         newsPane.prefWidthProperty().bind(this.widthProperty().divide(3));
         newsPane.prefHeightProperty().bind(this.heightProperty().divide(1.5));

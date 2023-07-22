@@ -17,7 +17,7 @@ import net.lim.model.adv.Advertisement;
  * Pane containing news area (textflow in scrollpane) and a button to hide/show this area.
  */
 public class NewsPane extends Pane {
-    private NewsController controller;
+    private final NewsController controller;
 
     private ScrollPane scrollPane;
     private TextFlow newsTextFlow;

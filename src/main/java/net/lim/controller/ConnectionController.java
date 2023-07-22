@@ -1,22 +1,21 @@
 package net.lim.controller;
 
-import net.lim.LLauncher;
+import net.lim.controller.tasks.ConnectionEstablishTask;
+import net.lim.controller.tasks.ui.RotateStatusBarTask;
 import net.lim.model.Settings;
 import net.lim.model.connection.Connection;
-import net.lim.model.connection.RestConnection;
 import net.lim.model.connection.StubConnection;
-import net.lim.service.ConfigReader;
 
-import java.io.InputStream;
-import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ConnectionController implements Controller {
 
     private static ConnectionController instance;
 
     private static Connection connection;
-    private LauncherController launcherController;
-    private StageController stageController;
+    private final LauncherController launcherController;
+    private final StageController stageController;
+    private final ConnectionEstablishTask connectionEstablishTask;
 
     public static ConnectionController getInstance() {
         if (instance == null) {
@@ -47,11 +46,15 @@ public class ConnectionController implements Controller {
     private ConnectionController(LauncherController launcherController, StageController stageController) {
         this.launcherController = launcherController;
         this.stageController = stageController;
+        this.connectionEstablishTask = new ConnectionEstablishTask(stageController);
+        initOnRunningAndOnExitForConnectionTask();
     }
+
 
     @Override
     public void init() {
-        establishConnection();
+        startTask(connectionEstablishTask);
+
     }
 
     public void reconnectButtonPressed() {
@@ -59,45 +62,23 @@ public class ConnectionController implements Controller {
             connection = null;
         } else if (connection == null || !connection.validateConnection()
                 || connection instanceof StubConnection || Settings.getInstance().getLserverURL() != null) {
-            establishConnection();
+            startTask(connectionEstablishTask);
             launcherController.createOrUpdateDownloadFileService();
         }
     }
 
-    private void establishConnection() {
-        String launchServerURL;
-        if (Settings.getInstance().getLserverURL() == null) {
-            //can't be null here
-            launchServerURL = ConfigReader.getProperties().getProperty("server.ip");
-        } else {
-            launchServerURL = Settings.getInstance().getLserverURL();
-        }
-        boolean connectionOK = false;
-        String errorMessage = null;
-        try {
-            if (!Settings.getInstance().isOfflineMode()) {
-                connection = new RestConnection(launchServerURL);
-                connectionOK = connection.validateConnection();
-                if (connectionOK) {
-                    boolean currentVersionSupported = connection.validateVersionSupported(LLauncher.PROGRAM_VERSION);
-                    if (!currentVersionSupported) {
-                        errorMessage = "Too old launcher version. Please upgrade";
-                        connectionOK = false;
-                    }
+    private void initOnRunningAndOnExitForConnectionTask() {
+        AtomicReference<RotateStatusBarTask> rotateStatusBarTask = new AtomicReference<>();
+        connectionEstablishTask.setOnRunning(event -> {
+            rotateStatusBarTask.set(stageController.createAndStartRotateStatusIconTask());
+        });
 
-                    launcherController.initFileController();
-                } else {
-                    errorMessage = "Can't establish connection";
-                }
-            } else {
-                //do nothing for offline mode
-                connection = new StubConnection();
-                connectionOK = true;
-            }
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
-            System.err.println("Connection attempt failed: " + e.getMessage());
-        }
-        stageController.updateConnectionStatus(connectionOK, errorMessage);
+        connectionEstablishTask.setOnSucceeded(event -> {
+            connection = connectionEstablishTask.getValue();
+            rotateStatusBarTask.get().cancel(false);
+            launcherController.initFileController();
+            launcherController.createAndStartBackgroundReceiverTask();
+            stageController.getOrCreateBasicView().postInitAfterConnect();
+        });
     }
 }

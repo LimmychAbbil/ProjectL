@@ -28,7 +28,6 @@ public class BackgroundReceiverTask extends Task<Image> {
         try {
             File backgroundImage = fileController.getBackgroundImage(backgroundName);
             if (backgroundImage != null && backgroundImage.exists()) {
-
                 return new Image(new FileInputStream(backgroundImage));
             }
         } catch (IOException e) {

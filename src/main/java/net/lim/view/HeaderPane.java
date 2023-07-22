@@ -11,8 +11,6 @@ import javafx.scene.paint.Color;
 import net.lim.LLauncher;
 import net.lim.controller.StageController;
 
-import java.io.IOException;
-
 /**
  * Created by Limmy on 13.05.2018.
  */
