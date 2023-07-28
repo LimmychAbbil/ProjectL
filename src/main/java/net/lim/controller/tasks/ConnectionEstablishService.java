@@ -1,5 +1,6 @@
 package net.lim.controller.tasks;
 
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import net.lim.LLauncher;
 import net.lim.controller.StageController;
@@ -10,25 +11,13 @@ import net.lim.model.connection.StubConnection;
 import net.lim.service.ConfigReader;
 import org.apache.commons.lang3.StringUtils;
 
-public class ConnectionEstablishTask extends Task<Connection> {
+public class ConnectionEstablishService extends Service<Connection> {
 
     private final StageController stageController;
     private String errorMessage;
 
-    public ConnectionEstablishTask(StageController stageController) {
+    public ConnectionEstablishService(StageController stageController) {
         this.stageController = stageController;
-    }
-
-    @Override
-    protected Connection call() {
-        Connection connection = establishConnection();
-        if (connection == null) {
-            throw new RuntimeException("Connection creating failed: " + errorMessage);
-        } else if (!connection.validateConnection() || StringUtils.isNotEmpty(errorMessage)) {
-            throw new RuntimeException("Connection is not OK: " + errorMessage);
-        } else {
-            return connection;
-        }
     }
 
     private Connection establishConnection() {
@@ -67,5 +56,22 @@ public class ConnectionEstablishTask extends Task<Connection> {
         stageController.updateConnectionStatus(connectionOK, errorMessage);
 
         return connection;
+    }
+
+    @Override
+    protected Task<Connection> createTask() {
+        return new Task<>() {
+            @Override
+            protected Connection call() {
+                Connection connection = establishConnection();
+                if (connection == null) {
+                    throw new RuntimeException("Connection creating failed: " + errorMessage);
+                } else if (!connection.validateConnection() || StringUtils.isNotEmpty(errorMessage)) {
+                    throw new RuntimeException("Connection is not OK: " + errorMessage);
+                } else {
+                    return connection;
+                }
+            }
+        };
     }
 }

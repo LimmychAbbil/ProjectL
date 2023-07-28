@@ -15,7 +15,7 @@ public class LoginController implements Controller {
 
     private ServerInfo selectedServer;
 
-    private StageController stageController;
+    private final StageController stageController;
     private RegistrationController registrationController;
     private LoginService loginService;
 

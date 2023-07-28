@@ -132,6 +132,7 @@ public class LauncherController implements Controller {
     public void initFileController() {
         this.fileController = new FileController();
         this.fileCheckerService = new FileCheckerService(fileController);
+        this.downloadService = new DownloadFilesService(fileController);
     }
 
     public BackgroundReceiverTask createAndStartBackgroundReceiverTask() {
@@ -151,9 +152,5 @@ public class LauncherController implements Controller {
 
 
         return settingsController;
-    }
-
-    public void createOrUpdateDownloadFileService() {
-        this.downloadService = new DownloadFilesService(fileController);
     }
 }

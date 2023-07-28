@@ -14,6 +14,7 @@ import net.lim.controller.ConnectionController;
 import net.lim.controller.SettingsController;
 import net.lim.model.FileManager;
 import net.lim.model.Settings;
+import net.lim.service.ConfigReader;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -50,6 +51,7 @@ public class SettingsPane extends GridPane {
     private void initServerURL() {
         this.serverURL = new TextField();
         this.serverURL.setPromptText("LServer URL");
+        this.serverURL.setText(ConfigReader.getProperties().getProperty("server.ip"));
         this.serverURL.focusedProperty().addListener(e -> {
             if (!serverURL.isFocused() && StringUtils.isNotEmpty(serverURL.getText())) {
                 Settings.getInstance().setLserverURL(serverURL.getText());
