@@ -1,19 +1,18 @@
 package net.lim.controller;
 
+import javafx.application.HostServices;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import net.lim.LLauncher;
 import net.lim.model.connection.Connection;
 import net.lim.unit.BaseFXUnitTestClass;
 import net.lim.view.RegistrationPane;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class RegistrationControllerTest extends BaseFXUnitTestClass {
 
@@ -139,5 +138,23 @@ public class RegistrationControllerTest extends BaseFXUnitTestClass {
         registrationController.cancelRegistration(registrationPane);
 
         Mockito.verify(registrationPane).setVisible(false);
+    }
+
+    @Test
+    public void testRulesClicked() {
+        try (MockedStatic<LLauncher> lLauncherMockedStatic = Mockito.mockStatic(LLauncher.class);
+            MockedStatic<ConnectionController> conControlMockStatic = Mockito.mockStatic(ConnectionController.class)) {
+            HostServices mockedServices = Mockito.mock();
+            lLauncherMockedStatic.when(LLauncher::getFXHostServices).thenReturn(mockedServices);
+            ConnectionController connectionControllerMock = Mockito.mock();
+            Connection connectionMock = Mockito.mock();
+            Mockito.when(connectionControllerMock.getConnection()).thenReturn(connectionMock);
+            Mockito.when(connectionMock.getRulesURL()).thenReturn("someURL");
+            conControlMockStatic.when(ConnectionController::getInstance).thenReturn(connectionControllerMock);
+
+            registrationController.rulesClicked();
+
+            Mockito.verify(mockedServices).showDocument("someURL");
+        }
     }
 }

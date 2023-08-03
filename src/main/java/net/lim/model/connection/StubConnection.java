@@ -65,4 +65,9 @@ public class StubConnection extends Connection {
     public String getServerLaunchCommand(ServerInfo selectedServer) {
         return "echo 'Stub connection is used'";
     }
+
+    @Override
+    public String getRulesURL() {
+        return "http://google.com";
+    }
 }

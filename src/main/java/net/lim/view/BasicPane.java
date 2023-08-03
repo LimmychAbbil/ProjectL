@@ -28,6 +28,10 @@ public class BasicPane extends Pane {
     private final static URL connectingIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/connecting.png");
     private final static URL onlineIconURL = BasicPane.class.getClassLoader().getResource("icons/connection.status/online.png");
 
+    public static final Image ONLINE_ICON = new Image(onlineIconURL.toString(), true);
+    public static final Image OFFLINE_ICON = new Image(offlineIconURL.toString(), true);
+    public static final Image CONNECTING_ICON = new Image(connectingIconURL.toString(), true);
+
     public BasicPane(StageController controller) {
         this.controller = controller;
         init();
@@ -48,10 +52,10 @@ public class BasicPane extends Pane {
 
     public void setConnectionStatus(boolean isConnected, String message) {
         if (isConnected) {
-            lServerConnectionStatusIconView.imageProperty().set(new Image(onlineIconURL.toString(), true));
+            controller.setConnectionStatusIcon(lServerConnectionStatusIconView, ONLINE_ICON);
             lServerConnectionStatusIconView.setAccessibleText("Connected to the server");
         } else {
-            lServerConnectionStatusIconView.imageProperty().set(new Image(offlineIconURL.toString(), true));
+            controller.setConnectionStatusIcon(lServerConnectionStatusIconView, OFFLINE_ICON);
             lServerConnectionStatusIconView.setAccessibleText(message);
         }
         if (lServerConnectionStatusIconView.getAccessibleText() != null) {
@@ -76,7 +80,7 @@ public class BasicPane extends Pane {
         lServerConnectionStatusIconView.xProperty().bind(this.widthProperty().add(-48));
         lServerConnectionStatusIconView.yProperty().bind(headerPane.heightProperty().add(24));
 
-        lServerConnectionStatusIconView.imageProperty().set(new Image(connectingIconURL.toString(), true));
+        controller.setConnectionStatusIcon(lServerConnectionStatusIconView, CONNECTING_ICON);
         lServerConnectionStatusIconView.setOnMouseClicked(e -> this.settingsPane.setVisible(!settingsPane.isVisible()));
     }
 

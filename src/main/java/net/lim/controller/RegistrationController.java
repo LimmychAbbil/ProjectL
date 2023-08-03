@@ -1,5 +1,6 @@
 package net.lim.controller;
 
+import net.lim.LLauncher;
 import net.lim.model.connection.Connection;
 import net.lim.model.service.LUtils;
 import net.lim.view.RegistrationPane;
@@ -51,6 +52,6 @@ public class RegistrationController implements Controller {
     }
 
     public void rulesClicked() {
-        System.out.println("Open rules"); //TODO
+        LLauncher.getFXHostServices().showDocument(ConnectionController.getInstance().getConnection().getRulesURL());
     }
 }

@@ -96,14 +96,8 @@ public class BasicPaneTest extends BaseFXUnitTestClass {
 
     @Test
     public void testSetConnectionStatusOffline() {
-        List<Node> allLabelOnHeaderPaneList = basicPane.getChildren()
-                .filtered(node -> node.getClass().equals(ImageView.class));
-
-        ImageView connectionStatusImageView = (ImageView) allLabelOnHeaderPaneList.get(0);
-
         basicPane.setConnectionStatus(false);
-
-        Assertions.assertTrue(connectionStatusImageView.getImage().getUrl().contains("offline"));
+        Mockito.verify(stageControllerMock).setConnectionStatusIcon(Mockito.any(), Mockito.eq(BasicPane.OFFLINE_ICON));
     }
 
     @Test
@@ -120,7 +114,8 @@ public class BasicPaneTest extends BaseFXUnitTestClass {
 
             basicPane.setConnectionStatus(true);
 
-            Assertions.assertTrue(connectionStatusImageView.getImage().getUrl().contains("online"));
+            Mockito.verify(stageControllerMock)
+                    .setConnectionStatusIcon(Mockito.any(), Mockito.eq(BasicPane.ONLINE_ICON));
             Assertions.assertEquals("Connected to the server", connectionStatusImageView.getAccessibleText());
         }
     }

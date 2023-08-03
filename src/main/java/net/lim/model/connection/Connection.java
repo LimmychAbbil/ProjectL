@@ -51,4 +51,6 @@ public abstract class Connection {
     }
 
     public abstract String getServerLaunchCommand(ServerInfo selectedServer);
+
+    public abstract String getRulesURL();
 }

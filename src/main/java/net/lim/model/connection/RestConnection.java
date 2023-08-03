@@ -198,6 +198,11 @@ public class RestConnection extends Connection {
         }
     }
 
+    @Override
+    public String getRulesURL() {
+        return "http://google.com"; //TODO
+    }
+
     private JSONObject getJsonFromResponse(Response response) {
         String jsonString = response.readEntity(String.class);
         JSONObject jsonObject = null;

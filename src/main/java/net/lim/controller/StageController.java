@@ -2,6 +2,8 @@ package net.lim.controller;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -133,11 +135,16 @@ public class StageController implements Controller {
         };
     }
 
+    public void setConnectionStatusIcon(ImageView iconView, Image image) {
+        iconView.imageProperty().set(image);
+    }
+
     public void updateConnectionStatus(boolean connectionOK, String errorMessage) {
         basicView.setConnectionStatus(connectionOK, errorMessage);
     }
 
     public RotateStatusBarTask createAndStartRotateStatusIconTask() {
+        setConnectionStatusIcon(basicView.getlServerConnectionStatusIconView(), BasicPane.CONNECTING_ICON);
         RotateStatusBarTask rotateStatusBarTask = new RotateStatusBarTask(basicView.getlServerConnectionStatusIconView());
         startTask(rotateStatusBarTask);
 

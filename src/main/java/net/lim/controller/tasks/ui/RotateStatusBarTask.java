@@ -18,7 +18,7 @@ public class RotateStatusBarTask extends Task<Void> {
     }
 
     public void rotateStatusIcon() {
-        double d = 0;
+        double d = statusBarImageView.getRotate();
         try {
             while (!isCancelled()) {
                 d+=1;
