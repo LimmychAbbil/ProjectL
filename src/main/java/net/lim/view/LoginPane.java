@@ -84,8 +84,10 @@ public class LoginPane extends HBox {
 
     private void fillServersList(List<ServerInfo> serverList) {
         if (serverList.size() > 0) {
+            serverListDropdown.getItems().clear();
             serverListDropdown.getItems().addAll(0, serverList);
             serverListDropdown.getItems().add(serverList.size(), new Separator());
+            serverListDropdown.getItems().add(ServerInfo.OFFLINE);
         }
 
         serverListDropdown.setValue(ServerInfo.OFFLINE);
